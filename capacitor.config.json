@@ -1,0 +1,11 @@
+{
+  "appId": "com.rotaapp.viagens",
+  "appName": "ROTA",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#0F1117"
+  }
+}
