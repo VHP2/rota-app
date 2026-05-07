@@ -62,9 +62,8 @@ jobs:
               <item name="windowNoTitle">true</item>
               <item name="android:background">#0F1117</item>
             </style>
-            <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+            <style name="AppTheme.NoActionBarLaunch" parent="AppTheme.NoActionBar">
               <item name="android:background">#0F1117</item>
-              <item name="postSplashScreenTheme">@style/AppTheme</item>
             </style>
           </resources>
           EOF
