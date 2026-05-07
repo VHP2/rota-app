@@ -88,4 +88,37 @@ jobs:
 
               buildTypes {
                   release {
-                      minifyEnabled fa
+                      minifyEnabled false
+                      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                  }
+                  debug {
+                      applicationIdSuffix ".debug"
+                      versionNameSuffix "-debug"
+                  }
+              }
+
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+
+          dependencies {
+              implementation "androidx.appcompat:appcompat:1.6.1"
+              implementation "androidx.webkit:webkit:1.10.0"
+              implementation project(':capacitor-android')
+          }
+          EOF
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build debug APK
+        run: cd android && ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: rota-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
