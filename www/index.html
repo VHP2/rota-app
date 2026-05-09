@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="App de controle de custos e viagens para caminhoneiros">
   <meta name="theme-color" content="#0F1117">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,171 +15,1063 @@
   <title>ROTA — Controle de Viagens</title>
   <style>
     :root {
-      --bg:#0F1117;--surface:#181C24;--surface2:#1F2330;--surface3:#252A38;
-      --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
-      --accent:#5B7FFF;--accent2:#7B9BFF;--accent-lt:rgba(91,127,255,0.12);
-      --income:#60A5FA;--income-bg:rgba(96,165,250,0.10);
-      --cost:#F87171;--cost-bg:rgba(248,113,113,0.10);
-      --profit:#34D399;--profit-bg:rgba(52,211,153,0.10);
-      --warn:#FBBF24;--warn-bg:rgba(251,191,36,0.10);
-      --green:#34D399;--red:#F87171;--blue:#60A5FA;--amber:#FBBF24;
-      --text:#E2E8F0;--text2:#94A3B8;--muted:#64748B;--muted2:#334155;
-      --shadow-sm:0 2px 12px rgba(0,0,0,0.35);
-      --shadow-md:0 4px 24px rgba(0,0,0,0.45);
-      --shadow-lg:0 8px 40px rgba(0,0,0,0.55);
+      /* Backgrounds — escuro profundo */
+      --bg:        #0F1117;
+      --surface:   #181C24;
+      --surface2:  #1F2330;
+      --surface3:  #252A38;
+
+      /* Bordas sutis */
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.12);
+
+      /* Accent — índigo limpo */
+      --accent:    #5B7FFF;
+      --accent2:   #7B9BFF;
+      --accent-lt: rgba(91,127,255,0.12);
+
+      /* Semânticas funcionais */
+      --income:    #60A5FA;   /* frete / receita */
+      --income-bg: rgba(96,165,250,0.10);
+      --cost:      #F87171;   /* custo / combustível */
+      --cost-bg:   rgba(248,113,113,0.10);
+      --profit:    #34D399;   /* lucro líquido */
+      --profit-bg: rgba(52,211,153,0.10);
+      --neutral:   #94A3B8;   /* km / consumo */
+      --neutral-bg:rgba(148,163,184,0.10);
+      --warn:      #FBBF24;   /* margem / meta */
+      --warn-bg:   rgba(251,191,36,0.10);
+
+      /* Aliases legados */
+      --green:     #34D399;
+      --red:       #F87171;
+      --blue:      #60A5FA;
+      --amber:     #FBBF24;
+
+      /* Texto */
+      --text:      #E2E8F0;
+      --text2:     #94A3B8;
+      --muted:     #64748B;
+      --muted2:    #334155;
+
+      /* Sombras escuras */
+      --shadow-sm: 0 2px 12px rgba(0,0,0,0.35);
+      --shadow-md: 0 4px 24px rgba(0,0,0,0.45);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,0.55);
     }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-    body{display:flex;flex-direction:column}
-    .header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-    .header-brand{display:flex;align-items:center;gap:10px}
-    .header-logo{width:36px;height:36px;background:var(--accent-lt);border-radius:8px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:20px}
-    .header-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text)}
-    .header-title span{color:var(--accent)}
-    .header-subtitle{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px}
-    .header-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;color:var(--text2)}
-    .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-    .tabs::-webkit-scrollbar{display:none}
-    .tab-btn{flex:1;min-width:70px;padding:11px 8px;border:none;background:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap}
-    .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
-    .tab-btn:hover{color:var(--text)}
-    .content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:32px}
-    .tab-panel{display:none}
-    .tab-panel.active{display:block}
-    .section-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:12px;margin-top:4px;display:flex;align-items:center;gap:8px}
-    .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
-    .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-    .metric-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 16px;box-shadow:var(--shadow-sm);transition:box-shadow 0.2s,border-color 0.2s}
-    .metric-card:hover{border-color:var(--border2);box-shadow:var(--shadow-md)}
-    .metric-card.full{grid-column:1/-1}
-    .metric-card.highlight{background:var(--profit-bg);border-color:rgba(96,165,250,0.25)}
-    .metric-card.highlight .metric-value{color:var(--profit)}
-    .metric-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px}
-    .metric-value{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-0.5px}
-    .metric-value.success{color:var(--income)}
-    .metric-value.danger{color:var(--cost)}
-    .metric-value.amber{color:var(--income)}
-    .metric-value.blue{color:var(--profit)}
-    .metric-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text2);margin-top:5px}
-    .progress-wrap{margin-top:8px}
-    .progress-label{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:4px}
-    .progress-bar{height:4px;background:var(--border2);border-radius:2px;overflow:hidden}
-    .progress-fill{height:100%;background:var(--warn);border-radius:2px;transition:width 0.6s ease}
-    .progress-fill.done{background:var(--green)}
-    .input-group{margin-bottom:12px}
-    .input-group label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-    input[type="text"],input[type="number"],input[type="date"],input[type="month"],select,textarea{width:100%;padding:11px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:15px;font-family:'Barlow',sans-serif;color:var(--text);transition:border-color 0.2s;-webkit-appearance:none}
-    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,127,255,0.15)}
-    input::placeholder,textarea::placeholder{color:var(--muted)}
-    .input-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .btn{padding:12px 16px;border-radius:6px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:all 0.2s;border:1px solid var(--border);background:var(--surface2);color:var(--text);width:100%}
-    .btn:active{transform:scale(0.97)}
-    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;border-radius:10px;letter-spacing:0.5px}
-    .btn.primary:hover{background:var(--accent2);border-color:var(--accent2)}
-    .btn.danger{background:transparent;border-color:var(--red);color:var(--red)}
-    .btn.danger:hover{background:var(--red);color:#fff}
-    .btn.ghost{background:transparent;border-color:var(--border2);color:var(--muted)}
-    .btn.ghost:hover{border-color:var(--text);color:var(--text)}
-    .btn-row{display:flex;gap:8px;margin-top:16px}
-    .trip-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-sm);padding:14px;margin-bottom:8px;transition:border-color 0.2s}
-    .trip-card:hover{border-color:var(--border2);box-shadow:var(--shadow-md)}
-    .trip-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
-    .trip-card-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--text)}
-    .trip-card-date{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px}
-    .trip-card-value{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;text-align:right}
-    .trip-card-value.success{color:var(--income)}
-    .trip-card-value.danger{color:var(--cost)}
-    .trip-details{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:10px;border-top:1px solid var(--border)}
-    .trip-detail-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-    .trip-detail-value{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;color:var(--text)}
-    .margin-badge{display:inline-block;padding:2px 6px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;background:var(--income-bg);color:var(--income);margin-top:6px}
-    .margin-badge.warn{background:var(--cost-bg);color:var(--cost)}
-    .empty-state{text-align:center;padding:40px 16px;color:var(--muted)}
-    .empty-icon{font-size:40px;margin-bottom:12px;opacity:0.5}
-    .empty-text{font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:1px}
-    .info-box{background:var(--profit-bg);border:1px solid rgba(96,165,250,0.20);border-radius:6px;padding:12px;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--profit);line-height:1.6}
-    .alert-box{background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.25);border-radius:6px;padding:12px;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red)}
-    .calc-result{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:16px;margin-top:12px}
-    .calc-result-title{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-    .calc-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
-    .calc-row:last-child{border-bottom:none}
-    .calc-row-label{font-size:13px;color:var(--muted)}
-    .calc-row-value{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--text)}
-    .calc-row-value.success{color:var(--green)}
-    .calc-row-value.danger{color:var(--red)}
-    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface3);border:1px solid var(--border2);border-radius:10px;padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;letter-spacing:1px;color:var(--text);z-index:999;transition:transform 0.3s ease;white-space:nowrap;box-shadow:var(--shadow-lg)}
-    .toast.show{transform:translateX(-50%) translateY(0)}
-    .toast.success{border-color:var(--green);color:var(--green)}
-    .toast.error{border-color:var(--red);color:var(--red)}
-    .footer{padding:10px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);border-top:1px solid var(--border);background:var(--surface);letter-spacing:1px}
-    .divider{height:1px;background:var(--border);margin:16px 0}
-    ::-webkit-scrollbar{width:4px}
-    ::-webkit-scrollbar-track{background:var(--bg)}
-    ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    .fade-in{animation:fadeUp 0.35s ease forwards}
-    .ce-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)}
-    .ce-row:last-child{border-bottom:none}
-    .ce-row.ce-total-row{background:var(--cost-bg);border-top:1px solid rgba(248,113,113,0.25)}
-    .ce-row.ce-total-row .ce-row-desc{font-weight:700;color:var(--cost)}
-    .ce-row.ce-total-row .ce-row-valor{font-size:15px;color:var(--cost)}
-    .ce-row-desc{font-size:13px;font-weight:500;color:var(--text);flex:1}
-    .ce-row-valor{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--cost);margin-right:12px}
-    .ce-row-del{background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:3px 5px;border-radius:5px;transition:color 0.15s}
-    .ce-row-del:hover{color:var(--cost)}
-    .ce-list-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px}
-    .edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:500;display:flex;align-items:flex-end;justify-content:center}
-    .edit-sheet{background:var(--surface2);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;animation:slideUp 0.25s ease}
-    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-    .edit-sheet-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;color:var(--text);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
-    .edit-close{background:var(--surface3);border:1px solid var(--border);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--text2)}
-    .card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-    .btn.edit{background:var(--accent-lt);border-color:rgba(91,127,255,0.3);color:var(--accent);border-radius:8px;padding:8px;font-size:12px}
-    .trip-obs{margin-top:10px;padding:10px 12px;background:var(--surface2);border-radius:8px;font-size:12px;color:var(--text2);line-height:1.5;border-left:2px solid var(--border2)}
-    .months-row{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:8px}
-    .month-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 6px 8px;text-align:center;transition:border-color 0.2s}
-    .month-card.active-month{border-color:rgba(52,211,153,0.35);background:var(--profit-bg)}
-    .month-card.loss-month{border-color:rgba(248,113,113,0.25);background:var(--cost-bg)}
-    .month-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px}
-    .month-value{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;line-height:1}
-    .month-value.pos{color:var(--profit)}
-    .month-value.neg{color:var(--cost)}
-    .month-value.zero{color:var(--muted)}
-    .month-bar{height:3px;border-radius:2px;margin-top:6px;background:var(--surface3);overflow:hidden}
-    .month-bar-fill{height:100%;border-radius:2px;background:var(--profit);transition:width 0.5s ease}
-    .month-bar-fill.neg{background:var(--cost)}
-    @media(max-width:380px){.months-row{gap:4px}.month-card{padding:8px 4px 6px}.month-value{font-size:11px}.month-label{font-size:8px}.metric-value{font-size:22px}.header-title{font-size:22px}}
-    @media print{
-      *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-      body{background:#fff!important;color:#1a1a1a!important}
-      .header,.tabs,.content,.footer,.toast,#nova-viagem,#calculadora,#mensal,#configuracoes,#h-busca,.btn,.card-actions,.edit-overlay{display:none!important}
-      #historico{display:block!important;padding:0!important}
-      .pdf-header{display:block!important;text-align:center;padding:24px 0 16px;border-bottom:2px solid #1a1a1a;margin-bottom:20px}
-      .pdf-header h1{font-size:22px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#1a1a1a;margin-bottom:4px}
-      .pdf-header p{font-size:11px;color:#555;letter-spacing:1px}
-      .pdf-summary{display:grid!important;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-      .pdf-summary-card{background:#f4f4f4!important;border-radius:8px;padding:12px;text-align:center}
-      .pdf-summary-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:4px}
-      .pdf-summary-value{font-size:16px;font-weight:700;color:#1a1a1a}
-      .pdf-summary-value.green{color:#1a7a4a!important}
-      .pdf-summary-value.red{color:#c03a2a!important}
-      .trip-card{background:#fff!important;border:1px solid #ddd!important;border-radius:8px!important;box-shadow:none!important;padding:12px!important;margin-bottom:8px!important;page-break-inside:avoid}
-      .trip-card-title{color:#1a1a1a!important}
-      .trip-card-date{color:#888!important}
-      .trip-card-value.success{color:#1a7a4a!important}
-      .trip-card-value.danger{color:#c03a2a!important}
-      .trip-detail-label{color:#aaa!important}
-      .trip-detail-value{color:#1a1a1a!important}
-      .trip-details{border-top-color:#eee!important}
-      .margin-badge{background:#eee!important;color:#555!important}
-      .margin-badge.warn{background:#fde8e8!important;color:#c03a2a!important}
-      .trip-obs{background:#f8f8f8!important;border-left-color:#ccc!important;color:#555!important}
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Barlow', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
     }
-    .pdf-header{display:none}
-    .pdf-summary{display:none}
+
+    body { display: flex; flex-direction: column; }
+
+    /* ─── HEADER ─── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-logo {
+      width: 36px;
+      height: 36px;
+      background: var(--accent-lt);
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .header-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .header-title span { color: var(--accent); }
+
+    .header-subtitle {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    .header-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      color: var(--text2);
+    }
+
+    /* ─── TABS ─── */
+    .tabs {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 70px;
+      padding: 11px 8px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .tab-btn:hover { color: var(--text); }
+
+    /* ─── CONTENT ─── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 16px;
+      padding-bottom: 32px;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ─── SECTION TITLES ─── */
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .section-title { color: var(--text2); }
+
+    /* ─── METRIC GRID ─── */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .metric-card:hover {
+      border-color: var(--border2);
+      box-shadow: var(--shadow-md);
+    }
+
+    .metric-card::before { display: none; }
+    .metric-card.full { grid-column: 1 / -1; }
+
+    /* Highlight — card de lucro líquido */
+    .metric-card.highlight {
+      background: var(--profit-bg);
+      border-color: rgba(96,165,250,0.25);
+    }
+    .metric-card.highlight .metric-label { color: var(--text2); }
+    .metric-card.highlight .metric-value { color: var(--profit); }
+    .metric-card.highlight .metric-sub   { color: var(--text2); }
+
+    .metric-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .metric-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      letter-spacing: -0.5px;
+    }
+
+    /* Semânticos por função */
+    .metric-value.success { color: var(--income); }   /* lucro positivo */
+    .metric-value.danger  { color: var(--cost); }     /* lucro negativo / custo */
+    .metric-value.amber   { color: var(--income); }   /* frete = receita */
+    .metric-value.blue    { color: var(--profit); }   /* info / consumo */
+    .metric-value.warn    { color: var(--warn); }     /* margem / meta */
+
+    .metric-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--text2);
+      margin-top: 5px;
+    }
+
+    /* ─── PROGRESS BAR ─── */
+    .progress-wrap {
+      margin-top: 8px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .progress-bar {
+      height: 4px;
+      background: var(--border2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--warn);
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+    .progress-fill.done { background: var(--green); }
+
+    /* ─── CHART ─── */
+    .chart-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-sm);
+      padding: 16px;
+      margin-bottom: 8px;
+    }
+    .chart-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    canvas { width: 100% !important; }
+
+    /* ─── FORMS ─── */
+    .input-group {
+      margin-bottom: 12px;
+    }
+
+    .input-group label {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="month"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: 'Barlow', sans-serif;
+      color: var(--text);
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(91,127,255,0.15);
+    }
+
+    input::placeholder, textarea::placeholder { color: var(--muted); }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      padding: 12px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      width: 100%;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #FFFFFF;
+      border-radius: 10px;
+      letter-spacing: 0.5px;
+    }
+    .btn.primary:hover { background: var(--accent2); border-color: var(--accent2); }
+
+    .btn.danger {
+      background: transparent;
+      border-color: var(--red);
+      color: var(--red);
+    }
+    .btn.danger:hover { background: var(--red); color: white; }
+
+    .btn.ghost {
+      background: transparent;
+      border-color: var(--border2);
+      color: var(--muted);
+    }
+    .btn.ghost:hover { border-color: var(--text); color: var(--text); }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    /* ─── TRIP CARDS ─── */
+    .trip-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-sm);
+      padding: 14px;
+      margin-bottom: 8px;
+      transition: border-color 0.2s;
+    }
+    .trip-card:hover { border-color: var(--border2); box-shadow: var(--shadow-md); }
+
+    .trip-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .trip-card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+      color: var(--text);
+    }
+
+    .trip-card-date {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+      letter-spacing: 0.5px;
+    }
+
+    .trip-card-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      text-align: right;
+    }
+    .trip-card-value.success { color: var(--income); }
+    .trip-card-value.danger  { color: var(--cost); }
+
+    .trip-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .trip-detail-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .trip-detail-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .margin-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--income-bg);
+      color: var(--income);
+      margin-top: 6px;
+    }
+    .margin-badge.warn { background: var(--cost-bg); color: var(--cost); }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+    .empty-text { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; letter-spacing: 1px; }
+
+    /* ─── INFO / ALERT ─── */
+    .info-box {
+      background: var(--profit-bg);
+      border: 1px solid rgba(96,165,250,0.20);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--profit);
+      line-height: 1.6;
+    }
+
+    .alert-box {
+      background: rgba(231,76,60,0.08);
+      border: 1px solid rgba(231,76,60,0.25);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--red);
+    }
+
+    /* ─── CALCULATOR ─── */
+    .calc-result {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+    .calc-result-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .calc-row:last-child { border-bottom: none; }
+    .calc-row-label { font-size: 13px; color: var(--muted); }
+    .calc-row-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .calc-row-value.success { color: var(--green); }
+    .calc-row-value.danger  { color: var(--red); }
+
+    /* ─── TOAST ─── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--surface3);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text);
+      z-index: 999;
+      transition: transform 0.3s ease;
+      white-space: nowrap;
+      box-shadow: var(--shadow-lg);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error   { border-color: var(--red);   color: var(--red); }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      padding: 10px;
+      text-align: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      color: var(--muted2);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* ─── FADE IN ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeUp 0.35s ease forwards; }
+
+    /* ─── CUSTOS EXTRAS ─── */
+    .ce-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ce-row:last-child { border-bottom: none; }
+
+    .ce-row.ce-total-row {
+      background: var(--cost-bg);
+      border-top: 1px solid rgba(248,113,113,0.25);
+    }
+    .ce-row.ce-total-row .ce-row-desc {
+      font-weight: 700;
+      color: var(--cost);
+    }
+    .ce-row.ce-total-row .ce-row-valor {
+      font-size: 15px;
+      color: var(--cost);
+    }
+
+    .ce-row-desc {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .ce-row-valor {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cost);
+      margin-right: 12px;
+    }
+
+    .ce-row-del {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 3px 5px;
+      border-radius: 5px;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .ce-row-del:hover { color: var(--cost); }
+
+    .ce-list-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    /* ─── CUSTOS EXTRAS ─── */
+
+
+    /* ─── EDIT MODAL ─── */
+    .edit-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 500;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .edit-sheet {
+      background: var(--surface2);
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px 40px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+
+    .edit-sheet-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .edit-close {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--text2);
+      flex-shrink: 0;
+    }
+
+    /* Card action buttons */
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn.edit {
+      background: var(--accent-lt);
+      border-color: rgba(91,127,255,0.3);
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .btn.edit:hover { background: rgba(91,127,255,0.2); }
+
+    /* obs display in card */
+    .trip-obs {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: var(--surface2);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.5;
+      border-left: 2px solid var(--border2);
+    }
+
+    /* ─── MONTHS ROW ─── */
+    .months-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .month-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 6px 8px;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .month-card:hover { border-color: var(--border2); }
+
+    .month-card.active-month {
+      border-color: rgba(52,211,153,0.35);
+      background: var(--profit-bg);
+    }
+
+    .month-card.loss-month {
+      border-color: rgba(248,113,113,0.25);
+      background: var(--cost-bg);
+    }
+
+    .month-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .month-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.3px;
+    }
+
+    .month-value.pos { color: var(--profit); }
+    .month-value.neg { color: var(--cost); }
+    .month-value.zero { color: var(--muted); }
+
+    .month-bar {
+      height: 3px;
+      border-radius: 2px;
+      margin-top: 6px;
+      background: var(--surface3);
+      overflow: hidden;
+    }
+
+    .month-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--profit);
+      transition: width 0.5s ease;
+    }
+
+    .month-bar-fill.neg { background: var(--cost); }
+
+    @media (max-width: 380px) {
+      .months-row { gap: 4px; }
+      .month-card { padding: 8px 4px 6px; }
+      .month-value { font-size: 11px; }
+      .month-label { font-size: 8px; }
+    }
+
+        @media (max-width: 380px) {
+      .metric-value { font-size: 22px; }
+      .header-title { font-size: 22px; }
+    }
+
+    /* ─── PRINT / PDF ─── */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+      body {
+        background: #ffffff !important;
+        color: #1a1a1a !important;
+        font-family: 'Barlow', Arial, sans-serif;
+      }
+
+      .header, .tabs, .content, .footer, .toast,
+      #nova-viagem, #calculadora, #mensal, #configuracoes,
+      #h-busca, .btn, .card-actions, .edit-overlay {
+        display: none !important;
+      }
+
+      #historico {
+        display: block !important;
+        padding: 0 !important;
+      }
+
+      .pdf-header {
+        display: block !important;
+        text-align: center;
+        padding: 24px 0 16px;
+        border-bottom: 2px solid #1a1a1a;
+        margin-bottom: 20px;
+      }
+
+      .pdf-header h1 {
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+      }
+
+      .pdf-header p {
+        font-size: 11px;
+        color: #555;
+        letter-spacing: 1px;
+      }
+
+      .pdf-summary {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .pdf-summary-card {
+        background: #f4f4f4 !important;
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+      }
+
+      .pdf-summary-label {
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #888;
+        margin-bottom: 4px;
+      }
+
+      .pdf-summary-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1a1a1a;
+      }
+
+      .pdf-summary-value.green { color: #1a7a4a !important; }
+      .pdf-summary-value.red   { color: #c03a2a !important; }
+
+      .section-title {
+        font-size: 10px !important;
+        color: #888 !important;
+        letter-spacing: 2px;
+      }
+      .section-title::after { background: #ddd !important; }
+
+      .trip-card {
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+        padding: 12px !important;
+        margin-bottom: 8px !important;
+        page-break-inside: avoid;
+      }
+
+      .trip-card-title { color: #1a1a1a !important; font-size: 14px !important; }
+      .trip-card-date  { color: #888 !important; }
+      .trip-card-value.success { color: #1a7a4a !important; }
+      .trip-card-value.danger  { color: #c03a2a !important; }
+      .trip-detail-label { color: #aaa !important; }
+      .trip-detail-value { color: #1a1a1a !important; }
+      .trip-details { border-top-color: #eee !important; }
+      .margin-badge { background: #eee !important; color: #555 !important; }
+      .margin-badge.warn { background: #fde8e8 !important; color: #c03a2a !important; }
+      .trip-obs { background: #f8f8f8 !important; border-left-color: #ccc !important; color: #555 !important; }
+    }
+
+    .pdf-header   { display: none; }
+    .pdf-summary  { display: none; }
+
+    /* ─── TRUCK SELECTOR ─── */
+    .truck-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      align-items: center;
+    }
+    .truck-bar::-webkit-scrollbar { display: none; }
+    .truck-pill {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border2);
+      background: var(--surface2);
+      color: var(--text2);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .truck-pill.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .truck-pill-add {
+      flex-shrink: 0;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: 1px dashed var(--border2);
+      background: transparent;
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .truck-pill-add:hover { border-color: var(--accent); color: var(--accent); }
+    /* ─── MODAL CAMINHÃO ─── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 600;
+      display: flex; align-items: flex-end; justify-content: center;
+    }
+    .modal-sheet {
+      background: var(--surface2);
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px 40px;
+      width: 100%; max-width: 600px;
+      max-height: 85vh; overflow-y: auto;
+      animation: slideUp 0.25s ease;
+    }
+    .modal-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px; font-weight: 700; letter-spacing: 1px;
+      color: var(--text); margin-bottom: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-close {
+      background: var(--surface3); border: 1px solid var(--border);
+      border-radius: 50%; width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 16px; color: var(--text2);
+    }
+    /* ─── TRUCK CONFIG LIST ─── */
+    .truck-config-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px; margin-bottom: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .truck-config-card.active-truck { border-color: var(--accent); }
+    .truck-config-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px; font-weight: 700; color: var(--text);
+    }
+    .truck-config-placa {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; color: var(--muted); margin-top: 2px;
+    }
+    .truck-config-actions { display: flex; gap: 6px; }
+    .btn.sm { width: auto; padding: 6px 12px; font-size: 12px; letter-spacing: 0.5px; }
+    /* ─── METRIC GRID 4 ─── */
+    .metric-grid-4 {
+      display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 8px; margin-bottom: 8px;
+    }
+    @media (max-width: 480px) { .metric-grid-4 { grid-template-columns: 1fr 1fr; } }
+    /* ─── THEME TOGGLE ─── */
+    .theme-toggle {
+      width: 34px; height: 34px; border-radius: 8px;
+      border: 1px solid var(--border2); background: var(--surface2);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0; transition: background 0.2s;
+    }
+    /* ─── LIGHT THEME ─── */
+    body.light {
+      --bg:#F1F5F9; --surface:#FFFFFF; --surface2:#F8FAFC; --surface3:#EEF2F7;
+      --border:rgba(0,0,0,0.08); --border2:rgba(0,0,0,0.14);
+      --accent:#4166E8; --accent2:#5B7FFF; --accent-lt:rgba(65,102,232,0.10);
+      --income:#2563EB; --income-bg:rgba(37,99,235,0.08);
+      --cost:#DC2626; --cost-bg:rgba(220,38,38,0.08);
+      --profit:#059669; --profit-bg:rgba(5,150,105,0.08);
+      --neutral:#475569; --neutral-bg:rgba(71,85,105,0.08);
+      --warn:#D97706; --warn-bg:rgba(217,119,6,0.08);
+      --green:#059669; --red:#DC2626; --blue:#2563EB; --amber:#D97706;
+      --text:#0F172A; --text2:#475569; --muted:#94A3B8; --muted2:#CBD5E1;
+      --shadow-sm:0 2px 12px rgba(0,0,0,0.06);
+      --shadow-md:0 4px 24px rgba(0,0,0,0.10);
+      --shadow-lg:0 8px 40px rgba(0,0,0,0.14);
+    }
   </style>
 </head>
 <body>
+
 <div class="header">
   <div class="header-brand">
     <div class="header-logo">🚚</div>
@@ -187,53 +1080,133 @@
       <div class="header-subtitle">CONTROLE DE VIAGENS</div>
     </div>
   </div>
-  <div class="header-badge" id="header-trip-count">0 VIAGENS</div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTema()">☀️</button>
+    <div class="header-badge" id="header-trip-count">0 VIAGENS</div>
+  </div>
 </div>
+<!-- SELETOR DE CAMINHÃO -->
+<div class="truck-bar" id="truck-bar"></div>
+
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab(event,'dashboard')">Dashboard</button>
-  <button class="tab-btn" onclick="switchTab(event,'nova-viagem')">+ Viagem</button>
+  <button class="tab-btn" onclick="switchTab(event,'nova-viagem')">＋ Viagem</button>
   <button class="tab-btn" onclick="switchTab(event,'calculadora')">Calc</button>
   <button class="tab-btn" onclick="switchTab(event,'mensal')">Mensal</button>
   <button class="tab-btn" onclick="switchTab(event,'historico')">Histórico</button>
   <button class="tab-btn" onclick="switchTab(event,'configuracoes')">Config</button>
 </div>
+
 <div class="content">
+
+  <!-- ═══════════ DASHBOARD ═══════════ -->
   <div id="dashboard" class="tab-panel active">
+
     <p class="section-title">RESUMO GERAL</p>
+
     <div class="metric-grid">
-      <div class="metric-card"><div class="metric-label">Viagens</div><div class="metric-value" id="d-viagens">0</div><div class="metric-sub" id="d-distancia">0 km total</div></div>
-      <div class="metric-card"><div class="metric-label">Consumo Real</div><div class="metric-value blue" id="d-consumo">—</div><div class="metric-sub">km / litro</div></div>
+      <div class="metric-card" id="mc-viagens">
+        <div class="metric-label">Viagens</div>
+        <div class="metric-value" id="d-viagens">0</div>
+        <div class="metric-sub" id="d-distancia">0 km total</div>
+      </div>
+      <div class="metric-card" id="mc-consumo">
+        <div class="metric-label">Consumo Real</div>
+        <div class="metric-value blue" id="d-consumo">—</div>
+        <div class="metric-sub" id="d-consumo-sub">km / litro</div>
+      </div>
     </div>
+
     <div class="metric-grid">
-      <div class="metric-card"><div class="metric-label">Frete Total</div><div class="metric-value amber" id="d-frete">R$ 0</div></div>
-      <div class="metric-card"><div class="metric-label">Combustível</div><div class="metric-value" id="d-combustivel">R$ 0</div></div>
+      <div class="metric-card">
+        <div class="metric-label">Frete Total</div>
+        <div class="metric-value amber" id="d-frete">R$ 0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Combustível</div>
+        <div class="metric-value" id="d-combustivel">R$ 0</div>
+      </div>
     </div>
+
     <div class="metric-grid">
-      <div class="metric-card"><div class="metric-label">Outros Custos</div><div class="metric-value" id="d-outros">R$ 0</div></div>
-      <div class="metric-card"><div class="metric-label">Margem Média</div><div class="metric-value" id="d-margem">—</div></div>
+      <div class="metric-card">
+        <div class="metric-label">Outros Custos</div>
+        <div class="metric-value" id="d-outros">R$ 0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Margem Média</div>
+        <div class="metric-value" id="d-margem">—</div>
+      </div>
     </div>
+
     <div class="metric-grid">
-      <div class="metric-card full highlight"><div class="metric-label">Lucro Líquido Total</div><div class="metric-value" id="d-lucro">R$ 0</div><div class="metric-sub" id="d-lucro-sub"></div></div>
+      <div class="metric-card full highlight">
+        <div class="metric-label">Lucro Líquido Total</div>
+        <div class="metric-value" id="d-lucro">R$ 0</div>
+        <div class="metric-sub" id="d-lucro-sub"></div>
+      </div>
     </div>
+
     <p class="section-title" style="margin-top:20px">LUCRO — ÚLTIMOS 6 MESES</p>
     <div class="months-row" id="months-row"></div>
+
     <p class="section-title" style="margin-top:16px">ÚLTIMA VIAGEM</p>
-    <div id="d-ultima-viagem"><div class="empty-state"><div class="empty-icon">🛣️</div><div class="empty-text">Nenhuma viagem ainda</div></div></div>
+    <div id="d-ultima-viagem">
+      <div class="empty-state">
+        <div class="empty-icon">🛣️</div>
+        <div class="empty-text">Nenhuma viagem ainda</div>
+      </div>
+    </div>
   </div>
+
+  <!-- ═══════════ NOVA VIAGEM ═══════════ -->
   <div id="nova-viagem" class="tab-panel">
+
     <p class="section-title">REGISTRAR VIAGEM</p>
-    <div class="input-group"><label>Data da Viagem</label><input type="date" id="v-data"></div>
-    <div class="input-group"><label>Rota / Descrição</label><input type="text" id="v-notas" placeholder="Ex: São Paulo → Campinas"></div>
-    <div class="input-row">
-      <div class="input-group"><label>Distância (km)</label><input type="number" id="v-distancia" placeholder="350" min="0" step="0.1" inputmode="decimal"></div>
-      <div class="input-group"><label>Frete (R$)</label><input type="number" id="v-frete" placeholder="1200" min="0" step="0.01" inputmode="decimal"></div>
+
+    <div class="input-group">
+      <label>Data da Viagem</label>
+      <input type="date" id="v-data">
     </div>
-    <div class="input-row">
-      <div class="input-group"><label>Litros Consumidos</label><input type="number" id="v-litros" placeholder="80" min="0" step="0.1" inputmode="decimal"></div>
-      <div class="input-group"><label>Preço/Litro (R$)</label><input type="number" id="v-preco-litro" placeholder="5.50" min="0" step="0.01" inputmode="decimal"></div>
+
+    <div class="input-group">
+      <label>Rota / Descrição</label>
+      <input type="text" id="v-notas" placeholder="Ex: São Paulo → Campinas">
     </div>
-    <div class="input-group"><label>Outros Custos (R$)</label><input type="number" id="v-outros" placeholder="0" min="0" step="0.01" inputmode="decimal"></div>
-    <div class="input-group"><label>Observações</label><textarea id="v-obs" placeholder="Anotações livres..." rows="2"></textarea></div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label>Distância (km)</label>
+        <input type="number" id="v-distancia" placeholder="350" min="0" step="0.1" inputmode="decimal">
+      </div>
+      <div class="input-group">
+        <label>Frete (R$)</label>
+        <input type="number" id="v-frete" placeholder="1200" min="0" step="0.01" inputmode="decimal">
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label>Litros Consumidos</label>
+        <input type="number" id="v-litros" placeholder="80" min="0" step="0.1" inputmode="decimal">
+      </div>
+      <div class="input-group">
+        <label>Preço/Litro (R$)</label>
+        <input type="number" id="v-preco-litro" placeholder="5.50" min="0" step="0.01" inputmode="decimal">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Outros Custos (R$) — pedágio, refeição…</label>
+      <input type="number" id="v-outros" placeholder="0" min="0" step="0.01" inputmode="decimal">
+    </div>
+
+    <div class="input-group">
+      <label>Observações</label>
+      <textarea id="v-obs" placeholder="Anotações livres sobre a viagem…" rows="2"></textarea>
+    </div>
+
+    <!-- Preview ao vivo -->
     <div id="v-preview" class="calc-result" style="display:none">
       <div class="calc-result-title">⚡ PRÉVIA DA VIAGEM</div>
       <div class="calc-row"><span class="calc-row-label">Custo combustível</span><span class="calc-row-value" id="pv-comb">—</span></div>
@@ -243,20 +1216,44 @@
       <div class="calc-row"><span class="calc-row-label">Margem</span><span class="calc-row-value" id="pv-margem">—</span></div>
       <div class="calc-row"><span class="calc-row-label">Consumo</span><span class="calc-row-value" id="pv-consumo">—</span></div>
     </div>
-    <div style="margin-top:16px"><button class="btn primary" onclick="adicionarViagem()">REGISTRAR VIAGEM</button></div>
+
+    <div style="margin-top:16px">
+      <button class="btn primary" onclick="adicionarViagem()">REGISTRAR VIAGEM</button>
+    </div>
   </div>
+
+  <!-- ═══════════ CALCULADORA ═══════════ -->
   <div id="calculadora" class="tab-panel">
     <p class="section-title">CALCULADORA DE FRETE</p>
     <div class="info-box">Simule o lucro antes de aceitar uma viagem.</div>
+
     <div class="input-row">
-      <div class="input-group"><label>Distância (km)</label><input type="number" id="c-dist" placeholder="400" inputmode="decimal" oninput="calcular()"></div>
-      <div class="input-group"><label>Frete (R$)</label><input type="number" id="c-frete" placeholder="1500" inputmode="decimal" oninput="calcular()"></div>
+      <div class="input-group">
+        <label>Distância (km)</label>
+        <input type="number" id="c-dist" placeholder="400" inputmode="decimal" oninput="calcular()">
+      </div>
+      <div class="input-group">
+        <label>Frete (R$)</label>
+        <input type="number" id="c-frete" placeholder="1500" inputmode="decimal" oninput="calcular()">
+      </div>
     </div>
+
     <div class="input-row">
-      <div class="input-group"><label>Consumo (km/l)</label><input type="number" id="c-consumo" placeholder="3.5" inputmode="decimal" oninput="calcular()"></div>
-      <div class="input-group"><label>Preço Comb. (R$/l)</label><input type="number" id="c-preco" placeholder="5.50" inputmode="decimal" oninput="calcular()"></div>
+      <div class="input-group">
+        <label>Consumo (km/l)</label>
+        <input type="number" id="c-consumo" placeholder="3.5" inputmode="decimal" oninput="calcular()">
+      </div>
+      <div class="input-group">
+        <label>Preço Comb. (R$/l)</label>
+        <input type="number" id="c-preco" placeholder="5.50" inputmode="decimal" oninput="calcular()">
+      </div>
     </div>
-    <div class="input-group"><label>Outros Custos (R$)</label><input type="number" id="c-outros" placeholder="0" inputmode="decimal" oninput="calcular()"></div>
+
+    <div class="input-group">
+      <label>Outros Custos (R$)</label>
+      <input type="number" id="c-outros" placeholder="0" inputmode="decimal" oninput="calcular()">
+    </div>
+
     <div id="c-resultado" class="calc-result" style="display:none">
       <div class="calc-result-title">📊 RESULTADO DA SIMULAÇÃO</div>
       <div class="calc-row"><span class="calc-row-label">Litros necessários</span><span class="calc-row-value" id="c-litros">—</span></div>
@@ -267,396 +1264,1093 @@
       <div class="calc-row"><span class="calc-row-label">Margem</span><span class="calc-row-value" id="c-margem">—</span></div>
       <div class="calc-row"><span class="calc-row-label">R$ por km rodado</span><span class="calc-row-value" id="c-por-km">—</span></div>
     </div>
-    <div id="c-alerta" style="display:none;margin-top:12px"></div>
+
+    <div id="c-alerta" style="display:none; margin-top:12px"></div>
   </div>
+
+  <!-- ═══════════ MENSAL ═══════════ -->
   <div id="mensal" class="tab-panel">
     <p class="section-title">RELATÓRIO MENSAL</p>
-    <div class="input-group"><label>Mês de Referência</label><input type="month" id="m-mes"></div>
-    <div class="metric-grid">
-      <div class="metric-card"><div class="metric-label">Viagens</div><div class="metric-value" id="m-viagens">0</div></div>
-      <div class="metric-card"><div class="metric-label">Distância</div><div class="metric-value" id="m-distancia">0</div><div class="metric-sub">km percorridos</div></div>
+
+    <div class="input-group">
+      <label>Mês de Referência</label>
+      <input type="month" id="m-mes">
     </div>
-    <div class="metric-grid">
-      <div class="metric-card"><div class="metric-label">Frete</div><div class="metric-value amber" id="m-frete">R$ 0</div></div>
-      <div class="metric-card"><div class="metric-label">Combustível</div><div class="metric-value" id="m-combustivel">R$ 0</div></div>
-    </div>
-    <div class="metric-grid">
-      <div class="metric-card full highlight">
-        <div class="metric-label">Lucro do Mês</div>
-        <div class="metric-value" id="m-lucro">R$ 0</div>
-        <div class="metric-sub" id="m-lucro-sub" style="margin-top:4px;display:none;color:rgba(248,113,113,0.9);font-size:11px"></div>
-        <div id="m-meta-progress" class="progress-wrap" style="display:none">
-          <div class="progress-label"><span>Meta mensal</span><span id="m-meta-pct">0%</span></div>
-          <div class="progress-bar"><div class="progress-fill" id="m-meta-fill" style="width:0%"></div></div>
-        </div>
+
+    <div class="metric-grid-4">
+      <div class="metric-card">
+        <div class="metric-label">Viagens</div>
+        <div class="metric-value" id="m-viagens">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Distância</div>
+        <div class="metric-value" id="m-distancia">0</div>
+        <div class="metric-sub">km</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Frete</div>
+        <div class="metric-value amber" id="m-frete">R$ 0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Combustível</div>
+        <div class="metric-value" id="m-combustivel">R$ 0</div>
       </div>
     </div>
+
     <div class="metric-grid">
-      <div class="metric-card"><label class="metric-label">Meta Mensal (R$)</label><input type="number" id="m-meta-input" placeholder="Ex: 8000" style="margin-top:6px;background:var(--surface2);font-size:16px" inputmode="decimal"></div>
-      <div class="metric-card" style="display:flex;flex-direction:column;justify-content:flex-end"><button class="btn primary" onclick="salvarMeta()" style="font-size:13px;padding:10px">SALVAR META</button></div>
+      <div class="metric-card highlight">
+        <div class="metric-label">Lucro do Mês</div>
+        <div class="metric-value" id="m-lucro">R$ 0</div>
+        <div class="metric-sub" id="m-lucro-sub" style="margin-top:4px; display:none; color:rgba(248,113,113,0.9); font-size:11px"></div>
+        <div id="m-meta-progress" class="progress-wrap" style="display:none">
+          <div class="progress-label">
+            <span>Meta mensal</span>
+            <span id="m-meta-pct">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="m-meta-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label" style="margin-bottom:10px">Meta Mensal (R$)</div>
+        <input type="number" id="m-meta-input" placeholder="Ex: 8000" style="margin-bottom:8px; background: var(--surface2)" inputmode="decimal">
+        <button class="btn primary" onclick="salvarMeta()" style="font-size:13px; padding:10px">SALVAR</button>
+      </div>
     </div>
+
     <div class="divider"></div>
     <p class="section-title">CUSTOS EXTRAS DO MÊS</p>
+
     <div class="metric-card" style="margin-bottom:8px">
       <div class="metric-label" style="margin-bottom:10px">Adicionar custo extra</div>
       <div class="input-row" style="margin-bottom:8px">
-        <div class="input-group" style="margin-bottom:0"><label>Descrição</label><input type="text" id="ce-desc" placeholder="Ex: Troca de óleo..."></div>
-        <div class="input-group" style="margin-bottom:0"><label>Valor (R$)</label><input type="number" id="ce-valor" placeholder="0" min="0" inputmode="decimal"></div>
+        <div class="input-group" style="margin-bottom:0">
+          <label>Descrição</label>
+          <input type="text" id="ce-desc" placeholder="Ex: Troca de óleo, pneu…">
+        </div>
+        <div class="input-group" style="margin-bottom:0">
+          <label>Valor (R$)</label>
+          <input type="number" id="ce-valor" placeholder="0" min="0" inputmode="decimal">
+        </div>
       </div>
-      <button class="btn primary" onclick="adicionarCustoExtra()" style="font-size:13px;padding:10px">+ ADICIONAR</button>
+      <button class="btn primary" onclick="adicionarCustoExtra()" style="font-size:13px; padding:10px">+ ADICIONAR</button>
     </div>
+
     <div id="ce-lista-items"></div>
+
     <div class="divider"></div>
     <p class="section-title">VIAGENS DO MÊS</p>
     <div id="m-lista"></div>
-    <div id="m-vazio" class="empty-state" style="display:none"><div class="empty-icon">📭</div><div class="empty-text">Nenhuma viagem neste mês</div></div>
+    <div id="m-vazio" class="empty-state" style="display:none">
+      <div class="empty-icon">📭</div>
+      <div class="empty-text">Nenhuma viagem neste mês</div>
+    </div>
   </div>
+
+  <!-- ═══════════ HISTÓRICO ═══════════ -->
   <div id="historico" class="tab-panel">
-    <div class="pdf-header" id="pdf-header"><h1>🚚 ROTA</h1><p id="pdf-subtitle">Relatório de Viagens</p></div>
+
+    <!-- visible only on print -->
+    <div class="pdf-header" id="pdf-header">
+      <h1>🚚 ROTA</h1>
+      <p id="pdf-subtitle">Relatório de Viagens</p>
+    </div>
     <div class="pdf-summary" id="pdf-summary">
       <div class="pdf-summary-card"><div class="pdf-summary-label">Viagens</div><div class="pdf-summary-value" id="pdf-n">0</div></div>
       <div class="pdf-summary-card"><div class="pdf-summary-label">Frete Total</div><div class="pdf-summary-value" id="pdf-frete">R$ 0</div></div>
       <div class="pdf-summary-card"><div class="pdf-summary-label">Custos</div><div class="pdf-summary-value red" id="pdf-custo">R$ 0</div></div>
       <div class="pdf-summary-card"><div class="pdf-summary-label">Lucro</div><div class="pdf-summary-value green" id="pdf-lucro">R$ 0</div></div>
     </div>
+
     <p class="section-title">HISTÓRICO DE VIAGENS</p>
-    <div style="display:flex;gap:8px;margin-bottom:12px">
+    <div style="display:flex; gap:8px; margin-bottom:12px">
       <input type="text" id="h-busca" placeholder="Buscar rota..." oninput="renderHistorico()" style="flex:1">
-      <button class="btn ghost" onclick="exportarPDF()" style="width:auto;padding:10px 14px;font-size:12px">📄 PDF</button>
+      <button class="btn ghost" onclick="exportarPDF()" style="width:auto; padding:10px 14px; font-size:12px">📄 PDF</button>
     </div>
     <div id="h-lista"></div>
-    <div id="h-vazio" class="empty-state" style="display:none"><div class="empty-icon">📭</div><div class="empty-text">Nenhuma viagem registrada</div></div>
-  </div>
-  <div id="configuracoes" class="tab-panel">
-    <p class="section-title">DADOS DO VEÍCULO</p>
-    <div class="input-row">
-      <div class="input-group"><label>Consumo Médio (km/l)</label><input type="number" id="cfg-consumo" value="3.5" min="0.1" step="0.1" inputmode="decimal"></div>
-      <div class="input-group"><label>Preço Combustível (R$/l)</label><input type="number" id="cfg-preco" value="5.50" min="0" step="0.01" inputmode="decimal"></div>
+    <div id="h-vazio" class="empty-state" style="display:none">
+      <div class="empty-icon">📭</div>
+      <div class="empty-text">Nenhuma viagem registrada</div>
     </div>
-    <div class="input-group"><label>Margem Mínima Aceitável (%)</label><input type="number" id="cfg-margem" value="15" min="0" step="1" inputmode="decimal"></div>
-    <div class="input-group"><label>Nome / Placa do Veículo</label><input type="text" id="cfg-veiculo" placeholder="Ex: Scania R450 — ABC-1234"></div>
+  </div>
+
+  <!-- ═══════════ CONFIGURAÇÕES ═══════════ -->
+  <div id="configuracoes" class="tab-panel">
+
+    <p class="section-title">MEUS CAMINHÕES <span style="color:var(--muted);font-size:10px">(máx. 5)</span></p>
+    <div id="truck-config-list"></div>
+    <div id="truck-add-btn-wrap">
+      <button class="btn ghost" onclick="abrirModalCaminhao(null)">＋ ADICIONAR CAMINHÃO</button>
+    </div>
+
+    <div class="divider"></div>
+    <p class="section-title">CONFIG. DO CAMINHÃO ATIVO</p>
+    <div class="info-box" id="cfg-truck-info">Selecione um caminhão acima.</div>
+
+    <div class="input-row">
+      <div class="input-group">
+        <label>Consumo Médio (km/l)</label>
+        <input type="number" id="cfg-consumo" value="3.5" min="0.1" step="0.1" inputmode="decimal">
+      </div>
+      <div class="input-group">
+        <label>Preço Combustível (R$/l)</label>
+        <input type="number" id="cfg-preco" value="5.50" min="0" step="0.01" inputmode="decimal">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Margem Mínima Aceitável (%)</label>
+      <input type="number" id="cfg-margem" value="15" min="0" step="1" inputmode="decimal">
+    </div>
     <button class="btn primary" onclick="salvarConfig()">SALVAR CONFIGURAÇÕES</button>
+
     <div class="divider"></div>
     <p class="section-title">DADOS</p>
     <div class="btn-row" style="margin-top:0">
-      <button class="btn ghost" onclick="exportarPDF()">📄 EXPORTAR PDF</button>
-      <button class="btn danger" onclick="limparTudo()">🗑️ LIMPAR TUDO</button>
+      <button class="btn ghost" onclick="exportarPDF()">📄 PDF DO CAMINHÃO</button>
+      <button class="btn danger" onclick="limparCaminhao()">🗑️ LIMPAR DADOS</button>
     </div>
-    <div class="info-box" style="margin-top:12px">Todos os dados são armazenados localmente no dispositivo. Nenhuma informação é enviada para a internet.</div>
+    <div class="info-box" style="margin-top:12px">
+      Dados armazenados localmente no dispositivo. Nenhuma informação enviada para a internet.
+    </div>
   </div>
-</div>
-<div class="footer">ROTA v2.0 &nbsp;•&nbsp; DADOS LOCAIS &nbsp;•&nbsp; <span id="footer-veiculo"></span></div>
+
+  <!-- MODAL CAMINHÃO -->
+  <div class="modal-overlay" id="modal-caminhao" style="display:none" onclick="fecharModalSe(event)">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span id="modal-titulo">NOVO CAMINHÃO</span>
+        <span class="modal-close" onclick="fecharModal()">✕</span>
+      </div>
+      <div class="input-group"><label>Nome do Caminhão</label>
+        <input type="text" id="mc-nome" placeholder="Ex: Scania R450, Volvo FH…"></div>
+      <div class="input-group"><label>Placa</label>
+        <input type="text" id="mc-placa" placeholder="Ex: ABC-1234"></div>
+      <div class="input-row">
+        <div class="input-group"><label>Consumo (km/l)</label>
+          <input type="number" id="mc-consumo" value="3.5" min="0.1" step="0.1" inputmode="decimal"></div>
+        <div class="input-group"><label>Preço Comb. (R$/l)</label>
+          <input type="number" id="mc-preco" value="5.50" min="0" step="0.01" inputmode="decimal"></div>
+      </div>
+      <div class="input-group"><label>Margem Mínima (%)</label>
+        <input type="number" id="mc-margem" value="15" min="0" step="1" inputmode="decimal"></div>
+      <div class="btn-row">
+        <button class="btn ghost" onclick="fecharModal()">CANCELAR</button>
+        <button class="btn primary" onclick="salvarCaminhao()">SALVAR</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<div class="footer">ROTA v3.0 &nbsp;•&nbsp; MÚLTIPLOS CAMINHÕES &nbsp;•&nbsp; <span id="footer-truck">—</span></div>
 <div class="toast" id="toast"></div>
+
 <script>
-let viagens=[],config={consumoMedio:3.5,precoCombustivel:5.50,margemMinima:15,veiculo:''},metas={},custosExtras={};
-function init(){
-  try{viagens=JSON.parse(localStorage.getItem('rota_viagens')||'[]')}catch(e){}
-  try{config={...config,...JSON.parse(localStorage.getItem('rota_config')||'{}')} }catch(e){}
-  try{metas=JSON.parse(localStorage.getItem('rota_metas')||'{}')}catch(e){}
-  try{custosExtras=JSON.parse(localStorage.getItem('rota_ce')||'{}')}catch(e){}
-  const hoje=new Date().toISOString().split('T')[0];
-  document.getElementById('v-data').value=hoje;
-  const mes=hoje.slice(0,7);
-  document.getElementById('m-mes').value=mes;
-  document.getElementById('m-mes').addEventListener('change',atualizarMensal);
-  document.getElementById('cfg-consumo').value=config.consumoMedio;
-  document.getElementById('cfg-preco').value=config.precoCombustivel;
-  document.getElementById('cfg-margem').value=config.margemMinima;
-  document.getElementById('cfg-veiculo').value=config.veiculo;
-  document.getElementById('v-preco-litro').value=config.precoCombustivel;
-  document.getElementById('c-consumo').value=config.consumoMedio;
-  document.getElementById('c-preco').value=config.precoCombustivel;
-  document.getElementById('footer-veiculo').textContent=config.veiculo||'SEM VEÍCULO';
-  ['v-frete','v-litros','v-preco-litro','v-distancia','v-outros'].forEach(id=>{
-    document.getElementById(id).addEventListener('input',atualizarPreview);
-  });
-  atualizarDashboard();atualizarMensal();
+// ═══════════════════════════════════════════════════
+// ESTADO MULTI-CAMINHÃO
+// ═══════════════════════════════════════════════════
+const MAX_TRUCKS = 5;
+let caminhoes = [];
+let caminhaoAtivoId = null;
+let dados = {};
+let modalEditId = null;
+
+const getCaminhao  = () => caminhoes.find(c => String(c.id) === String(caminhaoAtivoId)) || {};
+const getViagens   = () => (dados[caminhaoAtivoId] || {}).viagens || [];
+const getMetas     = () => (dados[caminhaoAtivoId] || {}).metas   || {};
+const getCE        = () => (dados[caminhaoAtivoId] || {}).custosExtras || {};
+const getCfg = () => {
+  const c = getCaminhao();
+  return { consumoMedio: c.consumoMedio||3.5, precoCombustivel: c.precoCombustivel||5.50, margemMinima: c.margemMinima||15 };
+};
+function setViagens(vs) { if (dados[caminhaoAtivoId]) dados[caminhaoAtivoId].viagens = vs; }
+function setMetas(m)    { if (dados[caminhaoAtivoId]) dados[caminhaoAtivoId].metas = m; }
+function setCE(ce)      { if (dados[caminhaoAtivoId]) dados[caminhaoAtivoId].custosExtras = ce; }
+
+function salvar() {
+  localStorage.setItem('rota_caminhoes', JSON.stringify(caminhoes));
+  localStorage.setItem('rota_dados',     JSON.stringify(dados));
+  localStorage.setItem('rota_ativo',     String(caminhaoAtivoId));
 }
-function switchTab(e,name){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+function init() {
+  try { caminhoes = JSON.parse(localStorage.getItem('rota_caminhoes') || '[]'); } catch(e){}
+  try { dados     = JSON.parse(localStorage.getItem('rota_dados')     || '{}'); } catch(e){}
+  caminhaoAtivoId = localStorage.getItem('rota_ativo');
+
+  // Migrar dados antigos (single-truck v2)
+  if (caminhoes.length === 0) {
+    try {
+      const ov = JSON.parse(localStorage.getItem('rota_viagens') || '[]');
+      const oc = JSON.parse(localStorage.getItem('rota_config')  || '{}');
+      const om = JSON.parse(localStorage.getItem('rota_metas')   || '{}');
+      const oe = JSON.parse(localStorage.getItem('rota_ce')      || '{}');
+      const id = Date.now();
+      caminhoes = [{ id, nome: oc.veiculo || 'Caminhão 1', placa: '',
+        consumoMedio: oc.consumoMedio||3.5, precoCombustivel: oc.precoCombustivel||5.50, margemMinima: oc.margemMinima||15 }];
+      dados[id] = { viagens: ov, metas: om, custosExtras: oe };
+      caminhaoAtivoId = String(id);
+    } catch(e) { criarDefault(); }
+  }
+  if (caminhoes.length === 0) criarDefault();
+
+  if (!caminhaoAtivoId || !caminhoes.find(c => String(c.id) === String(caminhaoAtivoId))) {
+    caminhaoAtivoId = String(caminhoes[0].id);
+  }
+  caminhaoAtivoId = String(caminhaoAtivoId);
+  caminhoes.forEach(c => { if (!dados[c.id]) dados[c.id] = { viagens:[], metas:{}, custosExtras:{} }; });
+
+  initTema();
+
+  const hoje = new Date().toISOString().split('T')[0];
+  document.getElementById('v-data').value = hoje;
+  document.getElementById('m-mes').value  = hoje.slice(0,7);
+  document.getElementById('m-mes').addEventListener('change', atualizarMensal);
+  ['v-frete','v-litros','v-preco-litro','v-distancia','v-outros'].forEach(id => {
+    document.getElementById(id).addEventListener('input', atualizarPreview);
+  });
+
+  ativarCaminhao(caminhaoAtivoId);
+}
+
+function criarDefault() {
+  const id = Date.now();
+  caminhoes = [{ id, nome:'Caminhão 1', placa:'', consumoMedio:3.5, precoCombustivel:5.50, margemMinima:15 }];
+  dados[id] = { viagens:[], metas:{}, custosExtras:{} };
+  caminhaoAtivoId = String(id);
+}
+
+function ativarCaminhao(id) {
+  caminhaoAtivoId = String(id);
+  if (!dados[caminhaoAtivoId]) dados[caminhaoAtivoId] = { viagens:[], metas:{}, custosExtras:{} };
+  salvar();
+  renderTruckBar();
+  renderTruckConfigList();
+  const cfg = getCfg();
+  document.getElementById('v-preco-litro').value = cfg.precoCombustivel;
+  document.getElementById('c-consumo').value = cfg.consumoMedio;
+  document.getElementById('c-preco').value   = cfg.precoCombustivel;
+  document.getElementById('cfg-consumo').value = cfg.consumoMedio;
+  document.getElementById('cfg-preco').value   = cfg.precoCombustivel;
+  document.getElementById('cfg-margem').value  = cfg.margemMinima;
+  const c = getCaminhao();
+  document.getElementById('footer-truck').textContent = c.nome || '—';
+  const info = document.getElementById('cfg-truck-info');
+  if (info) info.textContent = 'Editando: ' + (c.nome||'—') + (c.placa ? ' — ' + c.placa : '');
+  atualizarDashboard();
+  atualizarMensal();
+}
+
+function renderTruckBar() {
+  const bar = document.getElementById('truck-bar');
+  let html = caminhoes.map(c =>
+    '<button class="truck-pill' + (String(c.id)===caminhaoAtivoId?' active':'') +
+    '" onclick="ativarCaminhao(' + c.id + ')">' + c.nome + (c.placa?' · '+c.placa:'') + '</button>'
+  ).join('');
+  if (caminhoes.length < MAX_TRUCKS)
+    html += '<button class="truck-pill-add" onclick="abrirModalCaminhao(null)">+</button>';
+  bar.innerHTML = html;
+}
+
+function renderTruckConfigList() {
+  const el = document.getElementById('truck-config-list');
+  if (!el) return;
+  el.innerHTML = caminhoes.map(c => {
+    const isAtivo = String(c.id) === caminhaoAtivoId;
+    return '<div class="truck-config-card' + (isAtivo?' active-truck':'') + '">' +
+      '<div onclick="ativarCaminhao(' + c.id + ')" style="cursor:pointer;flex:1">' +
+        '<div class="truck-config-name">' + (isAtivo?'🚚 ':'') + c.nome + '</div>' +
+        '<div class="truck-config-placa">' + (c.placa||'Sem placa') + ' · ' + c.consumoMedio + ' km/l</div>' +
+      '</div>' +
+      '<div class="truck-config-actions">' +
+        '<button class="btn edit sm" onclick="abrirModalCaminhao(' + c.id + ')">✏️</button>' +
+        (caminhoes.length > 1 ? '<button class="btn danger sm" onclick="deletarCaminhao(' + c.id + ')">🗑️</button>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+  const addWrap = document.getElementById('truck-add-btn-wrap');
+  if (addWrap) addWrap.style.display = caminhoes.length >= MAX_TRUCKS ? 'none' : 'block';
+}
+
+function abrirModalCaminhao(id) {
+  modalEditId = id;
+  document.getElementById('modal-titulo').textContent = id ? 'EDITAR CAMINHÃO' : 'NOVO CAMINHÃO';
+  if (id) {
+    const c = caminhoes.find(x => x.id === id);
+    if (c) {
+      document.getElementById('mc-nome').value    = c.nome||'';
+      document.getElementById('mc-placa').value   = c.placa||'';
+      document.getElementById('mc-consumo').value = c.consumoMedio||3.5;
+      document.getElementById('mc-preco').value   = c.precoCombustivel||5.50;
+      document.getElementById('mc-margem').value  = c.margemMinima||15;
+    }
+  } else {
+    document.getElementById('mc-nome').value=''; document.getElementById('mc-placa').value='';
+    document.getElementById('mc-consumo').value=3.5; document.getElementById('mc-preco').value=5.50;
+    document.getElementById('mc-margem').value=15;
+  }
+  document.getElementById('modal-caminhao').style.display='flex';
+}
+
+function fecharModal() { document.getElementById('modal-caminhao').style.display='none'; modalEditId=null; }
+function fecharModalSe(e) { if (e.target===document.getElementById('modal-caminhao')) fecharModal(); }
+
+function salvarCaminhao() {
+  const nome   = document.getElementById('mc-nome').value.trim();
+  const placa  = document.getElementById('mc-placa').value.trim().toUpperCase();
+  const consumo= parseFloat(document.getElementById('mc-consumo').value)||3.5;
+  const preco  = parseFloat(document.getElementById('mc-preco').value)||5.50;
+  const margem = parseFloat(document.getElementById('mc-margem').value)||15;
+  if (!nome) { toast('Informe o nome do caminhão', 'error'); return; }
+  if (modalEditId) {
+    const idx = caminhoes.findIndex(c => c.id === modalEditId);
+    if (idx >= 0) caminhoes[idx] = { ...caminhoes[idx], nome, placa, consumoMedio:consumo, precoCombustivel:preco, margemMinima:margem };
+    toast('✅ Caminhão atualizado!');
+  } else {
+    if (caminhoes.length >= MAX_TRUCKS) { toast('Limite de 5 caminhões atingido', 'error'); return; }
+    const id = Date.now();
+    caminhoes.push({ id, nome, placa, consumoMedio:consumo, precoCombustivel:preco, margemMinima:margem });
+    dados[id] = { viagens:[], metas:{}, custosExtras:{} };
+    caminhaoAtivoId = String(id);
+    toast('✅ Caminhão adicionado!');
+  }
+  salvar(); fecharModal(); ativarCaminhao(caminhaoAtivoId);
+}
+
+function deletarCaminhao(id) {
+  const c = caminhoes.find(x => x.id === id);
+  if (!c || !confirm('Deletar "' + c.nome + '" e todas as viagens?')) return;
+  caminhoes = caminhoes.filter(x => x.id !== id);
+  delete dados[id];
+  if (String(caminhaoAtivoId) === String(id))
+    caminhaoAtivoId = caminhoes[0] ? String(caminhoes[0].id) : null;
+  if (caminhoes.length === 0) criarDefault();
+  salvar(); ativarCaminhao(caminhaoAtivoId);
+  toast('🗑️ Caminhão removido', 'error');
+}
+
+// ═══════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════
+function switchTab(e, name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(name).classList.add('active');
   e.target.classList.add('active');
-  if(name==='dashboard')atualizarDashboard();
-  if(name==='historico')renderHistorico();
-  if(name==='mensal')atualizarMensal();
+  if (name === 'dashboard')     atualizarDashboard();
+  if (name === 'historico')     renderHistorico();
+  if (name === 'mensal')        atualizarMensal();
+  if (name === 'configuracoes') { renderTruckConfigList(); }
 }
-function abrirEdicao(id){
-  const v=viagens.find(x=>x.id===id);if(!v)return;
-  const o=document.createElement('div');o.className='edit-overlay';o.id='edit-overlay';
-  o.innerHTML='<div class="edit-sheet"><div class="edit-sheet-title">EDITAR VIAGEM<span class="edit-close" onclick="fecharEdicao()">✕</span></div>'+
-    '<div class="input-group"><label>Rota</label><input type="text" id="e-notas" value="'+(v.notas||'')+'"></div>'+
-    '<div class="input-row"><div class="input-group"><label>Data</label><input type="date" id="e-data" value="'+v.data+'"></div>'+
-    '<div class="input-group"><label>Distância (km)</label><input type="number" id="e-distancia" value="'+v.distancia+'" inputmode="decimal"></div></div>'+
-    '<div class="input-row"><div class="input-group"><label>Frete (R$)</label><input type="number" id="e-frete" value="'+v.frete+'" inputmode="decimal"></div>'+
-    '<div class="input-group"><label>Litros</label><input type="number" id="e-litros" value="'+v.litros+'" inputmode="decimal"></div></div>'+
-    '<div class="input-row"><div class="input-group"><label>Preço/Litro</label><input type="number" id="e-precol" value="'+(v.precoL||config.precoCombustivel)+'" inputmode="decimal"></div>'+
-    '<div class="input-group"><label>Outros (R$)</label><input type="number" id="e-outros" value="'+v.outros+'" inputmode="decimal"></div></div>'+
-    '<div class="input-group"><label>Observações</label><textarea id="e-obs" rows="3">'+(v.obs||'')+'</textarea></div>'+
-    '<div class="btn-row"><button class="btn ghost" onclick="fecharEdicao()">CANCELAR</button>'+
-    '<button class="btn primary" onclick="salvarEdicao('+id+')">SALVAR</button></div></div>';
-  o.addEventListener('click',function(e){if(e.target===o)fecharEdicao();});
-  document.body.appendChild(o);
+
+// ─── TEMA ───
+function initTema() {
+  const salvo = localStorage.getItem('rota_tema');
+  const escuro = salvo !== null ? salvo === 'dark' : window.matchMedia('(prefers-color-scheme:dark)').matches;
+  aplicarTema(escuro);
+  window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', e => {
+    if (!localStorage.getItem('rota_tema')) aplicarTema(e.matches);
+  });
 }
-function fecharEdicao(){const el=document.getElementById('edit-overlay');if(el)el.remove();}
-function salvarEdicao(id){
-  const idx=viagens.findIndex(x=>x.id===id);if(idx===-1)return;
-  const v=viagens[idx];
-  const notas=document.getElementById('e-notas').value.trim();
-  const data=document.getElementById('e-data').value;
-  const distancia=parseFloat(document.getElementById('e-distancia').value)||v.distancia;
-  const frete=parseFloat(document.getElementById('e-frete').value)||v.frete;
-  const litros=parseFloat(document.getElementById('e-litros').value)||v.litros;
-  const precoL=parseFloat(document.getElementById('e-precol').value)||v.precoL;
-  const outros=parseFloat(document.getElementById('e-outros').value)||0;
-  const obs=document.getElementById('e-obs').value.trim();
-  const custoComb=litros*precoL,lucro=frete-custoComb-outros,margem=frete>0?(lucro/frete)*100:0,consumo=distancia/litros;
-  viagens[idx]={...v,notas,data,distancia,frete,litros,precoL,custoComb,outros,lucro,margem,consumo,obs};
-  salvar();fecharEdicao();renderHistorico();atualizarDashboard();atualizarMensal();toast('✅ Viagem atualizada!');
+function aplicarTema(escuro) {
+  document.body.classList.toggle('light', !escuro);
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = escuro ? '☀️' : '🌙';
 }
-function salvar(){
-  localStorage.setItem('rota_viagens',JSON.stringify(viagens));
-  localStorage.setItem('rota_config',JSON.stringify(config));
-  localStorage.setItem('rota_metas',JSON.stringify(metas));
-  localStorage.setItem('rota_ce',JSON.stringify(custosExtras));
+function toggleTema() {
+  const escuro = !document.body.classList.contains('light');
+  aplicarTema(!escuro);
+  localStorage.setItem('rota_tema', !escuro ? 'dark' : 'light');
 }
-function toast(msg,type='success'){
-  const el=document.getElementById('toast');el.textContent=msg;el.className=`toast ${type} show`;
-  setTimeout(()=>el.classList.remove('show'),2800);
+
+// ═══════════════════════════════════════════════════
+// EDIT
+// ═══════════════════════════════════════════════════
+function abrirEdicao(id) {
+  const v = getViagens().find(x => x.id === id);
+  if (!v) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'edit-overlay';
+  overlay.id = 'edit-overlay';
+  overlay.innerHTML =
+    '<div class="edit-sheet">' +
+      '<div class="edit-sheet-title">' +
+        'EDITAR VIAGEM' +
+        '<span class="edit-close" onclick="fecharEdicao()">✕</span>' +
+      '</div>' +
+
+      '<div class="input-group"><label>Rota / Descrição</label>' +
+        '<input type="text" id="e-notas" value="' + (v.notas||'') + '" placeholder="Ex: SP → RJ">' +
+      '</div>' +
+
+      '<div class="input-row">' +
+        '<div class="input-group"><label>Data</label>' +
+          '<input type="date" id="e-data" value="' + v.data + '">' +
+        '</div>' +
+        '<div class="input-group"><label>Distância (km)</label>' +
+          '<input type="number" id="e-distancia" value="' + v.distancia + '" inputmode="decimal">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="input-row">' +
+        '<div class="input-group"><label>Frete (R$)</label>' +
+          '<input type="number" id="e-frete" value="' + v.frete + '" inputmode="decimal">' +
+        '</div>' +
+        '<div class="input-group"><label>Litros</label>' +
+          '<input type="number" id="e-litros" value="' + v.litros + '" inputmode="decimal">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="input-row">' +
+        '<div class="input-group"><label>Preço/Litro (R$)</label>' +
+          '<input type="number" id="e-precol" value="' + (v.precoL||getCfg().precoCombustivel) + '" inputmode="decimal">' +
+        '</div>' +
+        '<div class="input-group"><label>Outros Custos (R$)</label>' +
+          '<input type="number" id="e-outros" value="' + v.outros + '" inputmode="decimal">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="input-group"><label>Observações</label>' +
+        '<textarea id="e-obs" rows="3" placeholder="Anotações livres…">' + (v.obs||'') + '</textarea>' +
+      '</div>' +
+
+      '<div class="btn-row">' +
+        '<button class="btn ghost" onclick="fecharEdicao()">CANCELAR</button>' +
+        '<button class="btn primary" onclick="salvarEdicao(' + id + ')">SALVAR</button>' +
+      '</div>' +
+    '</div>';
+
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) fecharEdicao();
+  });
+
+  document.body.appendChild(overlay);
 }
-const brl=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
-const num=(v,d=0)=>v.toLocaleString('pt-BR',{maximumFractionDigits:d});
-function adicionarViagem(){
-  const data=document.getElementById('v-data').value;
-  const notas=document.getElementById('v-notas').value.trim();
-  const distancia=parseFloat(document.getElementById('v-distancia').value);
-  const frete=parseFloat(document.getElementById('v-frete').value);
-  const litros=parseFloat(document.getElementById('v-litros').value);
-  const precoL=parseFloat(document.getElementById('v-preco-litro').value)||config.precoCombustivel;
-  const outros=parseFloat(document.getElementById('v-outros').value)||0;
-  if(!data||!distancia||!frete||!litros){toast('⚠️ Preencha data, distância, frete e litros','error');return;}
-  const custoComb=litros*precoL,lucro=frete-custoComb-outros,margem=frete>0?(lucro/frete)*100:0,consumo=distancia/litros;
-  const obs=document.getElementById('v-obs').value.trim();
-  viagens.push({id:Date.now(),data,notas,distancia,frete,litros,precoL,custoComb,outros,lucro,margem,consumo,obs});
+
+function fecharEdicao() {
+  const el = document.getElementById('edit-overlay');
+  if (el) el.remove();
+}
+
+function salvarEdicao(id) {
+  const viagens = getViagens();
+  const idx = viagens.findIndex(x => x.id === id);
+  if (idx === -1) return;
+
+  const v = viagens[idx];
+  const notas     = document.getElementById('e-notas').value.trim();
+  const data     = document.getElementById('e-data').value;
+  const distancia= parseFloat(document.getElementById('e-distancia').value) || v.distancia;
+  const frete    = parseFloat(document.getElementById('e-frete').value)    || v.frete;
+  const litros   = parseFloat(document.getElementById('e-litros').value)   || v.litros;
+  const precoL   = parseFloat(document.getElementById('e-precol').value)   || v.precoL;
+  const outros   = parseFloat(document.getElementById('e-outros').value)   || 0;
+  const obs      = document.getElementById('e-obs').value.trim();
+
+  const custoComb = litros * precoL;
+  const lucro     = frete - custoComb - outros;
+  const margem    = frete > 0 ? (lucro / frete) * 100 : 0;
+  const consumo   = distancia / litros;
+
+  viagens[idx] = { ...v, notas, data, distancia, frete, litros, precoL, custoComb, outros, lucro, margem, consumo, obs };
+  setViagens(viagens);
   salvar();
-  ['v-distancia','v-frete','v-litros','v-outros','v-notas','v-obs'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('v-data').value=new Date().toISOString().split('T')[0];
-  document.getElementById('v-preco-litro').value=config.precoCombustivel;
-  document.getElementById('v-preview').style.display='none';
-  toast('✅ Viagem registrada!');atualizarDashboard();atualizarMensal();
+  fecharEdicao();
+  renderHistorico();
+  atualizarDashboard();
+  atualizarMensal();
+  toast('✅ Viagem atualizada!');
+}
+
+// ═══════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════════════
+// FORMAT
+// ═══════════════════════════════════════════════════
+const brl = v => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+const num = (v,d=0) => v.toLocaleString('pt-BR', {maximumFractionDigits:d});
+
+// ═══════════════════════════════════════════════════
+// ADD TRIP
+// ═══════════════════════════════════════════════════
+function adicionarViagem() {
+  const data      = document.getElementById('v-data').value;
+  const notas     = document.getElementById('v-notas').value.trim();
+  const distancia = parseFloat(document.getElementById('v-distancia').value);
+  const frete     = parseFloat(document.getElementById('v-frete').value);
+  const litros    = parseFloat(document.getElementById('v-litros').value);
+  const precoL    = parseFloat(document.getElementById('v-preco-litro').value) || getCfg().precoCombustivel;
+  const outros    = parseFloat(document.getElementById('v-outros').value) || 0;
+
+  if (!data || !distancia || !frete || !litros) {
+    toast('⚠️ Preencha data, distância, frete e litros', 'error'); return;
+  }
+
+  const custoComb = litros * precoL;
+  const lucro     = frete - custoComb - outros;
+  const margem    = frete > 0 ? (lucro / frete) * 100 : 0;
+  const consumo   = distancia / litros;
+
+  const obs = document.getElementById('v-obs').value.trim();
+  const vs = getViagens();
+  vs.push({ id: Date.now(), caminhaoId: caminhaoAtivoId, data, notas, distancia, frete, litros, precoL, custoComb, outros, lucro, margem, consumo, obs });
+  setViagens(vs);
+  salvar();
+
+  // reset
+  ['v-distancia','v-frete','v-litros','v-outros','v-notas','v-obs'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('v-data').value = new Date().toISOString().split('T')[0];
+  document.getElementById('v-preco-litro').value = getCfg().precoCombustivel;
+  document.getElementById('v-preview').style.display = 'none';
+
+  toast('✅ Viagem registrada!');
+  atualizarDashboard();
+  atualizarMensal();
+
   document.querySelectorAll('.tab-btn')[0].click();
 }
-function atualizarPreview(){
-  const frete=parseFloat(document.getElementById('v-frete').value)||0;
-  const litros=parseFloat(document.getElementById('v-litros').value)||0;
-  const precoL=parseFloat(document.getElementById('v-preco-litro').value)||config.precoCombustivel;
-  const outros=parseFloat(document.getElementById('v-outros').value)||0;
-  const dist=parseFloat(document.getElementById('v-distancia').value)||0;
-  if(frete<=0&&litros<=0){document.getElementById('v-preview').style.display='none';return;}
-  document.getElementById('v-preview').style.display='block';
-  const comb=litros*precoL,lucro=frete-comb-outros,margem=frete>0?(lucro/frete)*100:0,cons=dist>0&&litros>0?dist/litros:0;
-  document.getElementById('pv-comb').textContent=brl(comb);
-  document.getElementById('pv-outros').textContent=brl(outros);
-  document.getElementById('pv-total-custo').textContent=brl(comb+outros);
-  const lEl=document.getElementById('pv-lucro');lEl.textContent=brl(lucro);lEl.className='calc-row-value '+(lucro>=0?'success':'danger');
-  const mEl=document.getElementById('pv-margem');mEl.textContent=num(margem)+'%';mEl.className='calc-row-value '+(margem>=config.margemMinima?'success':'danger');
-  document.getElementById('pv-consumo').textContent=cons>0?num(cons,2)+' km/l':'—';
+
+// ═══════════════════════════════════════════════════
+// PREVIEW (LIVE)
+// ═══════════════════════════════════════════════════
+function atualizarPreview() {
+  const frete   = parseFloat(document.getElementById('v-frete').value) || 0;
+  const litros  = parseFloat(document.getElementById('v-litros').value) || 0;
+  const precoL  = parseFloat(document.getElementById('v-preco-litro').value) || getCfg().precoCombustivel;
+  const outros  = parseFloat(document.getElementById('v-outros').value) || 0;
+  const dist    = parseFloat(document.getElementById('v-distancia').value) || 0;
+
+  if (frete <= 0 && litros <= 0) { document.getElementById('v-preview').style.display = 'none'; return; }
+  document.getElementById('v-preview').style.display = 'block';
+
+  const comb   = litros * precoL;
+  const lucro  = frete - comb - outros;
+  const margem = frete > 0 ? (lucro / frete) * 100 : 0;
+  const cons   = dist > 0 && litros > 0 ? dist / litros : 0;
+
+  document.getElementById('pv-comb').textContent = brl(comb);
+  document.getElementById('pv-outros').textContent = brl(outros);
+  document.getElementById('pv-total-custo').textContent = brl(comb + outros);
+  const lucroEl = document.getElementById('pv-lucro');
+  lucroEl.textContent = brl(lucro);
+  lucroEl.className = 'calc-row-value ' + (lucro >= 0 ? 'success' : 'danger');
+  const margemEl = document.getElementById('pv-margem');
+  margemEl.textContent = num(margem) + '%';
+  margemEl.className = 'calc-row-value ' + (margem >= getCfg().margemMinima ? 'success' : 'danger');
+  document.getElementById('pv-consumo').textContent = cons > 0 ? num(cons,2) + ' km/l' : '—';
 }
-function calcular(){
-  const dist=parseFloat(document.getElementById('c-dist').value)||0;
-  const frete=parseFloat(document.getElementById('c-frete').value)||0;
-  const cons=parseFloat(document.getElementById('c-consumo').value)||config.consumoMedio;
-  const preco=parseFloat(document.getElementById('c-preco').value)||config.precoCombustivel;
-  const outros=parseFloat(document.getElementById('c-outros').value)||0;
-  const el=document.getElementById('c-resultado');
-  if(dist<=0||frete<=0){el.style.display='none';return;}
-  el.style.display='block';
-  const litros=dist/cons,comb=litros*preco,total=comb+outros,lucro=frete-total,margem=(lucro/frete)*100,porKm=lucro/dist;
-  document.getElementById('c-litros').textContent=num(litros,0)+' L';
-  document.getElementById('c-cust-comb').textContent=brl(comb);
-  document.getElementById('c-cust-outros').textContent=brl(outros);
-  document.getElementById('c-total-custo').textContent=brl(total);
-  const lEl=document.getElementById('c-lucro');lEl.textContent=brl(lucro);lEl.className='calc-row-value '+(lucro>=0?'success':'danger');
-  const mEl=document.getElementById('c-margem');mEl.textContent=num(margem)+'%';mEl.className='calc-row-value '+(margem>=config.margemMinima?'success':'danger');
-  document.getElementById('c-por-km').textContent=brl(porKm)+'/km';
-  const alerta=document.getElementById('c-alerta');
-  if(margem<config.margemMinima){alerta.innerHTML='<div class="alert-box">⚠️ Margem abaixo do mínimo ('+config.margemMinima+'%). Considere renegociar.</div>';alerta.style.display='block';}
-  else{alerta.style.display='none';}
+
+// ═══════════════════════════════════════════════════
+// CALCULADORA
+// ═══════════════════════════════════════════════════
+function calcular() {
+  const dist   = parseFloat(document.getElementById('c-dist').value)   || 0;
+  const frete  = parseFloat(document.getElementById('c-frete').value)  || 0;
+  const cons   = parseFloat(document.getElementById('c-consumo').value)|| getCfg().consumoMedio;
+  const preco  = parseFloat(document.getElementById('c-preco').value)  || getCfg().precoCombustivel;
+  const outros = parseFloat(document.getElementById('c-outros').value) || 0;
+
+  const el = document.getElementById('c-resultado');
+  if (dist <= 0 || frete <= 0) { el.style.display='none'; return; }
+  el.style.display = 'block';
+
+  const litros = dist / cons;
+  const comb   = litros * preco;
+  const total  = comb + outros;
+  const lucro  = frete - total;
+  const margem = (lucro / frete) * 100;
+  const porKm  = lucro / dist;
+
+  document.getElementById('c-litros').textContent     = num(litros,0) + ' L';
+  document.getElementById('c-cust-comb').textContent  = brl(comb);
+  document.getElementById('c-cust-outros').textContent= brl(outros);
+  document.getElementById('c-total-custo').textContent= brl(total);
+
+  const lEl = document.getElementById('c-lucro');
+  lEl.textContent = brl(lucro);
+  lEl.className = 'calc-row-value ' + (lucro >= 0 ? 'success' : 'danger');
+
+  const mEl = document.getElementById('c-margem');
+  mEl.textContent = num(margem) + '%';
+  mEl.className = 'calc-row-value ' + (margem >= getCfg().margemMinima ? 'success' : 'danger');
+
+  document.getElementById('c-por-km').textContent = brl(porKm) + '/km';
+
+  const alerta = document.getElementById('c-alerta');
+  if (margem < getCfg().margemMinima) {
+    alerta.innerHTML = '<div class="alert-box">⚠️ Margem abaixo do mínimo (' + getCfg().margemMinima + '%). Considere renegociar.</div>';
+    alerta.style.display = 'block';
+  } else {
+    alerta.style.display = 'none';
+  }
 }
-function atualizarDashboard(){
-  const n=viagens.length;
-  document.getElementById('header-trip-count').textContent=n+' VIAGEM'+(n!==1?'S':'');
-  if(n===0){
-    ['d-viagens','d-consumo','d-frete','d-combustivel','d-outros','d-margem','d-lucro'].forEach(id=>{
-      const el=document.getElementById(id);
-      el.textContent=id.includes('frete')||id.includes('combustivel')||id.includes('outros')||id.includes('lucro')?'R$ 0':(id==='d-viagens'?'0':'—');
-      el.className='metric-value';
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════
+function atualizarDashboard() {
+  const viagens = getViagens();
+  const n = viagens.length;
+  document.getElementById('header-trip-count').textContent = n + ' VIAGEM' + (n !== 1 ? 'S' : '');
+
+  if (n === 0) {
+    ['d-viagens','d-consumo','d-frete','d-combustivel','d-outros','d-margem','d-lucro'].forEach(id => {
+      const el = document.getElementById(id);
+      el.textContent = id.includes('frete')||id.includes('combustivel')||id.includes('outros')||id.includes('lucro') ? 'R$ 0' : (id === 'd-viagens' ? '0' : '—');
+      el.className = 'metric-value';
     });
-    document.getElementById('d-distancia').textContent='0 km total';
-    document.getElementById('months-row').innerHTML='';
+    document.getElementById('d-distancia').textContent = '0 km total';
     return;
   }
-  const tD=viagens.reduce((s,v)=>s+v.distancia,0),tF=viagens.reduce((s,v)=>s+v.frete,0);
-  const tC=viagens.reduce((s,v)=>s+v.custoComb,0),tO=viagens.reduce((s,v)=>s+v.outros,0);
-  const tL=viagens.reduce((s,v)=>s+v.lucro,0),tLt=viagens.reduce((s,v)=>s+v.litros,0);
-  const cR=tD/tLt,mM=(tL/tF)*100;
-  document.getElementById('d-viagens').textContent=n;
-  document.getElementById('d-distancia').textContent=num(tD,0)+' km total';
-  document.getElementById('d-consumo').textContent=num(cR,2);
-  document.getElementById('d-frete').textContent=brl(tF);
-  document.getElementById('d-combustivel').textContent=brl(tC);
-  document.getElementById('d-outros').textContent=brl(tO);
-  document.getElementById('d-margem').textContent=num(mM,0)+'%';
-  const lEl=document.getElementById('d-lucro');lEl.textContent=brl(tL);lEl.className='metric-value '+(tL>=0?'success':'danger');
-  document.getElementById('d-lucro-sub').textContent=num(mM,0)+'% de margem média';
-  const ultima=[...viagens].sort((a,b)=>new Date(b.data)-new Date(a.data))[0];
-  document.getElementById('d-ultima-viagem').innerHTML=tripCardHTML(ultima,false);
+
+  const totalDist  = viagens.reduce((s,v) => s + v.distancia, 0);
+  const totalFrete = viagens.reduce((s,v) => s + v.frete, 0);
+  const totalComb  = viagens.reduce((s,v) => s + v.custoComb, 0);
+  const totalOutros= viagens.reduce((s,v) => s + v.outros, 0);
+  const totalLucro = viagens.reduce((s,v) => s + v.lucro, 0);
+  const totalLitros= viagens.reduce((s,v) => s + v.litros, 0);
+  const consumoReal= totalDist / totalLitros;
+  const margemMedia= (totalLucro / totalFrete) * 100;
+
+  document.getElementById('d-viagens').textContent   = n;
+  document.getElementById('d-distancia').textContent = num(totalDist,0) + ' km total';
+  document.getElementById('d-consumo').textContent   = num(consumoReal,2);
+  document.getElementById('d-frete').textContent     = brl(totalFrete);
+  document.getElementById('d-combustivel').textContent = brl(totalComb);
+  document.getElementById('d-outros').textContent    = brl(totalOutros);
+  document.getElementById('d-margem').textContent    = num(margemMedia,0) + '%';
+
+  const lucroEl = document.getElementById('d-lucro');
+  lucroEl.textContent  = brl(totalLucro);
+  lucroEl.className    = 'metric-value ' + (totalLucro >= 0 ? 'success' : 'danger');
+  document.getElementById('d-lucro-sub').textContent =
+    num(margemMedia,0) + '% de margem média';
+
+  // animate bars
+  document.querySelectorAll('.metric-card').forEach(c => {
+    setTimeout(() => c.classList.add('loaded'), 50);
+  });
+
+  // last trip
+  const ultima = [...viagens].sort((a,b) => new Date(b.data)-new Date(a.data))[0];
+  document.getElementById('d-ultima-viagem').innerHTML = tripCardHTML(ultima, false);
+
   renderChart();
 }
-function renderChart(){
-  const c=document.getElementById('months-row');if(!c)return;
-  const meses=[];
-  for(let i=5;i>=0;i--){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);meses.push(d.toISOString().slice(0,7));}
-  const data=meses.map(m=>{
-    const vs=viagens.filter(v=>v.data&&v.data.startsWith(m));
-    const lV=vs.reduce((s,v)=>s+v.lucro,0);
-    const ex=custosExtras[m]||[];
-    const lucro=lV-ex.reduce((s,x)=>s+x.valor,0);
-    return{m,label:m.slice(5)+'/'+m.slice(2,4),lucro};
+
+// ═══════════════════════════════════════════════════
+// MONTHS ROW
+// ═══════════════════════════════════════════════════
+function renderChart() {
+  const container = document.getElementById('months-row');
+  if (!container) return;
+
+  const meses = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() - i);
+    meses.push(d.toISOString().slice(0,7));
+  }
+
+  const mesAtual = new Date().toISOString().slice(0,7);
+
+  const _vAll = getViagens();
+  const _ceAll = getCE();
+  const data = meses.map(m => {
+    const vs = _vAll.filter(v => v.data && v.data.startsWith(m));
+    const lucroViagens = vs.reduce((s,v) => s + v.lucro, 0);
+    const extras = _ceAll[m] || [];
+    const totalCE = extras.reduce((s,c) => s + c.valor, 0);
+    const lucro = lucroViagens - totalCE;
+    const label = m.slice(5) + '/' + m.slice(2,4);
+    return { m, label, lucro };
   });
-  const maxAbs=Math.max(...data.map(d=>Math.abs(d.lucro)),1);
-  c.innerHTML=data.map(d=>{
-    const isEmpty=d.lucro===0,isNeg=d.lucro<0;
-    const cls=isEmpty?'zero':isNeg?'neg':'pos';
-    const cCls=isEmpty?'':isNeg?' loss-month':' active-month';
-    const pct=Math.round((Math.abs(d.lucro)/maxAbs)*100);
-    const val=isEmpty?'—':(isNeg?'-':'+')+' R$'+num(Math.abs(d.lucro),0);
-    return'<div class="month-card'+cCls+'"><div class="month-label">'+d.label+'</div>'+
-      '<div class="month-value '+cls+'">'+val+'</div>'+
-      '<div class="month-bar"><div class="month-bar-fill'+(isNeg?' neg':'')+'" style="width:'+pct+'%"></div></div></div>';
+
+  const maxAbs = Math.max(...data.map(d => Math.abs(d.lucro)), 1);
+
+  container.innerHTML = data.map(d => {
+    const isAtual = d.m === mesAtual;
+    const isEmpty = d.lucro === 0;
+    const isNeg   = d.lucro < 0;
+
+    const cls     = isEmpty ? 'zero' : isNeg ? 'neg' : 'pos';
+    const cardCls = isEmpty ? '' : isNeg ? ' loss-month' : ' active-month';
+    const pct     = Math.round((Math.abs(d.lucro) / maxAbs) * 100);
+
+    const val = isEmpty
+      ? '—'
+      : (isNeg ? '-' : '+') + 'R$' + num(Math.abs(d.lucro), 0);
+
+    return '<div class="month-card' + cardCls + '">' +
+      '<div class="month-label">' + d.label + '</div>' +
+      '<div class="month-value ' + cls + '">' + val + '</div>' +
+      '<div class="month-bar"><div class="month-bar-fill' + (isNeg ? ' neg' : '') + '" style="width:' + pct + '%"></div></div>' +
+    '</div>';
   }).join('');
 }
-function atualizarMensal(){
-  const mes=document.getElementById('m-mes').value;
-  const vs=viagens.filter(v=>v.data.startsWith(mes));
-  const tF=vs.reduce((s,v)=>s+v.frete,0),tC=vs.reduce((s,v)=>s+v.custoComb,0);
-  const tL=vs.reduce((s,v)=>s+v.lucro,0),tD=vs.reduce((s,v)=>s+v.distancia,0);
-  const ex=custosExtras[mes]||[],tCE=ex.reduce((s,c)=>s+c.valor,0),lF=tL-tCE;
-  document.getElementById('m-viagens').textContent=vs.length;
-  document.getElementById('m-distancia').textContent=num(tD,0);
-  document.getElementById('m-frete').textContent=brl(tF);
-  document.getElementById('m-combustivel').textContent=brl(tC);
-  const lEl=document.getElementById('m-lucro');lEl.textContent=brl(lF);lEl.className='metric-value '+(lF>=0?'success':'danger');
-  const meta=metas[mes]||0;document.getElementById('m-meta-input').value=meta||'';
-  const pw=document.getElementById('m-meta-progress');
-  if(meta>0){pw.style.display='block';const pct=Math.min(100,Math.round((lF/meta)*100));
-    document.getElementById('m-meta-pct').textContent=pct+'%';
-    const fill=document.getElementById('m-meta-fill');fill.style.width=pct+'%';fill.className='progress-fill '+(pct>=100?'done':'');
-  }else{pw.style.display='none';}
-  renderCustosExtras(mes,tL);
-  const lista=document.getElementById('m-lista'),vazio=document.getElementById('m-vazio');
-  if(vs.length===0){lista.innerHTML='';vazio.style.display='block';return;}
-  vazio.style.display='none';
-  lista.innerHTML=[...vs].sort((a,b)=>new Date(b.data)-new Date(a.data)).map(v=>tripCardHTML(v,false)).join('');
+
+// ═══════════════════════════════════════════════════
+// MENSAL
+// ═══════════════════════════════════════════════════
+function atualizarMensal() {
+  const mes     = document.getElementById('m-mes').value;
+  const _viagens= getViagens();
+  const _metas  = getMetas();
+  const _ce     = getCE();
+  const vs = _viagens.filter(v => v.data.startsWith(mes));
+
+  const totalFrete = vs.reduce((s,v) => s+v.frete,    0);
+  const totalComb  = vs.reduce((s,v) => s+v.custoComb, 0);
+  const totalLucro = vs.reduce((s,v) => s+v.lucro,     0);
+  const totalDist  = vs.reduce((s,v) => s+v.distancia, 0);
+
+  // comparação mês anterior
+  const _prevDate = new Date(mes+'-01'); _prevDate.setMonth(_prevDate.getMonth()-1);
+  const _prevMes  = _prevDate.toISOString().slice(0,7);
+  const _vsPrev   = _viagens.filter(v => v.data.startsWith(_prevMes));
+
+  const extras = _ce[mes] || [];
+  const totalCE = extras.reduce((s,c) => s + c.valor, 0);
+  const lucroFinal = totalLucro - totalCE;
+
+  document.getElementById('m-viagens').textContent    = vs.length;
+  document.getElementById('m-distancia').textContent  = num(totalDist,0);
+  document.getElementById('m-frete').textContent      = brl(totalFrete);
+  document.getElementById('m-combustivel').textContent= brl(totalComb);
+
+  // variação vs mês anterior
+  const _vDiv = document.getElementById('m-viagens').parentElement;
+  const _oldV = _vDiv.querySelector('.var-lbl'); if (_oldV) _oldV.remove();
+  if (_vsPrev.length > 0) {
+    const _var = (vs.length - _vsPrev.length) / _vsPrev.length * 100;
+    const _vEl = document.createElement('div');
+    _vEl.className = 'var-lbl metric-sub';
+    _vEl.style.color = _var >= 0 ? 'var(--green)' : 'var(--red)';
+    _vEl.style.marginTop = '6px';
+    _vEl.textContent = (_var>=0?'↑':'↓') + ' ' + Math.abs(Math.round(_var)) + '% vs ' + _prevMes.slice(5) + '/' + _prevMes.slice(2,4) + ' (' + _vsPrev.length + ')';
+    _vDiv.appendChild(_vEl);
+  }
+
+  const lEl = document.getElementById('m-lucro');
+  lEl.textContent = brl(lucroFinal);
+  lEl.className   = 'metric-value ' + (lucroFinal >= 0 ? 'success' : 'danger');
+
+  const meta = _metas[mes] || 0;
+  document.getElementById('m-meta-input').value = meta || '';
+
+  const progWrap = document.getElementById('m-meta-progress');
+  if (meta > 0) {
+    progWrap.style.display = 'block';
+    const pct = Math.min(100, Math.round((lucroFinal / meta) * 100));
+    document.getElementById('m-meta-pct').textContent = pct + '%';
+    const fill = document.getElementById('m-meta-fill');
+    fill.style.width = pct + '%';
+    fill.className = 'progress-fill ' + (pct >= 100 ? 'done' : '');
+  } else {
+    progWrap.style.display = 'none';
+  }
+
+  renderCustosExtras(mes, totalLucro);
+
+  // lista
+  const lista = document.getElementById('m-lista');
+  const vazio = document.getElementById('m-vazio');
+  if (vs.length === 0) { lista.innerHTML=''; vazio.style.display='block'; return; }
+  vazio.style.display = 'none';
+  lista.innerHTML = [...vs].sort((a,b) => new Date(b.data)-new Date(a.data)).map(v => tripCardHTML(v, false)).join('');
 }
-function salvarMeta(){
-  const mes=document.getElementById('m-mes').value,meta=parseFloat(document.getElementById('m-meta-input').value)||0;
-  metas[mes]=meta;salvar();toast('✅ Meta salva!');atualizarMensal();
+
+function salvarMeta() {
+  const mes  = document.getElementById('m-mes').value;
+  const meta = parseFloat(document.getElementById('m-meta-input').value) || 0;
+  const m = getMetas(); m[mes] = meta; setMetas(m);
+  salvar(); toast('✅ Meta salva!'); atualizarMensal();
 }
-function adicionarCustoExtra(){
-  const mes=document.getElementById('m-mes').value,desc=document.getElementById('ce-desc').value.trim();
-  const valor=parseFloat(document.getElementById('ce-valor').value)||0;
-  if(!desc||valor<=0){toast('Preencha descrição e valor','error');return;}
-  if(!custosExtras[mes])custosExtras[mes]=[];
-  custosExtras[mes].push({id:Date.now(),desc,valor});salvar();
-  document.getElementById('ce-desc').value='';document.getElementById('ce-valor').value='';
-  atualizarMensal();toast('✅ Custo adicionado!');
+
+// ═══════════════════════════════════════════════════
+// CUSTOS EXTRAS
+// ═══════════════════════════════════════════════════
+function adicionarCustoExtra() {
+  const mes   = document.getElementById('m-mes').value;
+  const desc  = document.getElementById('ce-desc').value.trim();
+  const valor = parseFloat(document.getElementById('ce-valor').value) || 0;
+
+  if (!desc || valor <= 0) { toast('Preencha descrição e valor', 'error'); return; }
+
+  const _ce = getCE();
+  if (!_ce[mes]) _ce[mes] = [];
+  _ce[mes].push({ id: Date.now(), desc, valor });
+  setCE(_ce); salvar();
+
+  document.getElementById('ce-desc').value  = '';
+  document.getElementById('ce-valor').value = '';
+
+  atualizarMensal();
+  toast('✅ Custo adicionado!');
 }
-function deletarCEBtn(btn){
-  const mes=btn.getAttribute('data-mes'),id=parseInt(btn.getAttribute('data-id'));
-  if(!custosExtras[mes])return;
-  custosExtras[mes]=custosExtras[mes].filter(c=>c.id!==id);
-  salvar();atualizarMensal();toast('🗑️ Custo removido','error');
+
+// Safe handler using data attributes (avoids string quote issues in onclick)
+function deletarCEBtn(btn) {
+  var mes = btn.getAttribute('data-mes');
+  var id  = parseInt(btn.getAttribute('data-id'));
+  deletarCustoExtra(mes, id);
 }
-function renderCustosExtras(mes,tLV){
-  const el=document.getElementById('ce-lista-items'),items=custosExtras[mes]||[];
-  if(items.length===0){el.innerHTML='';document.getElementById('m-lucro-sub').style.display='none';return;}
-  const tCE=items.reduce((s,c)=>s+c.valor,0),lF=tLV-tCE;
-  el.innerHTML='<div class="ce-list-wrap">'+
-    items.map(c=>'<div class="ce-row"><span class="ce-row-desc">'+c.desc+'</span><span class="ce-row-valor">- '+brl(c.valor)+'</span>'+
-      '<button class="ce-row-del" data-mes="'+mes+'" data-id="'+c.id+'" onclick="deletarCEBtn(this)">✕</button></div>').join('')+
-    '<div class="ce-row ce-total-row"><span class="ce-row-desc">Total extras</span><span class="ce-row-valor">− '+brl(tCE)+'</span></div></div>';
-  const s=document.getElementById('m-lucro-sub');s.style.display='block';s.textContent='Após extras: '+brl(lF);
+function deletarCE(mes, id) { deletarCustoExtra(mes, id); }
+
+function deletarCustoExtra(mes, id) {
+  const _ce = getCE();
+  if (!_ce[mes]) return;
+  _ce[mes] = _ce[mes].filter(c => c.id !== id);
+  setCE(_ce); salvar(); atualizarMensal(); toast('🗑️ Custo removido', 'error');
 }
-function renderHistorico(){
-  const busca=(document.getElementById('h-busca').value||'').toLowerCase();
-  let vs=[...viagens].sort((a,b)=>new Date(b.data)-new Date(a.data));
-  if(busca)vs=vs.filter(v=>(v.notas||'').toLowerCase().includes(busca));
-  const lista=document.getElementById('h-lista'),vazio=document.getElementById('h-vazio');
-  if(vs.length===0){lista.innerHTML='';vazio.style.display='block';return;}
-  vazio.style.display='none';lista.innerHTML=vs.map(v=>tripCardHTML(v,true)).join('');
+
+function renderCustosExtras(mes, totalLucroViagens) {
+  const listaEl = document.getElementById('ce-lista-items');
+  const items = (getCE()[mes] || []);
+
+  if (items.length === 0) {
+    listaEl.innerHTML = '';
+    document.getElementById('m-lucro-sub').style.display = 'none';
+    return;
+  }
+
+  const totalCE = items.reduce((s,c) => s + c.valor, 0);
+  const lucroFinal = totalLucroViagens - totalCE;
+
+  const rows = items.map(function(c) {
+    return '<div class="ce-row">' +
+      '<span class="ce-row-desc">' + c.desc + '</span>' +
+      '<span class="ce-row-valor">- ' + brl(c.valor) + '</span>' +
+      '<button class="ce-row-del" data-mes="' + mes + '" data-id="' + c.id + '" onclick="deletarCEBtn(this)">✕</button>' +
+    '</div>';
+  }).join('');
+
+  const totalRow =
+    '<div class="ce-row ce-total-row">' +
+      '<span class="ce-row-desc">Total custos extras</span>' +
+      '<span class="ce-row-valor">− ' + brl(totalCE) + '</span>' +
+    '</div>';
+
+  listaEl.innerHTML = '<div class="ce-list-wrap">' + rows + totalRow + '</div>';
+
+  const subEl = document.getElementById('m-lucro-sub');
+  subEl.style.display = 'block';
+  subEl.textContent = 'Após custos extras: ' + brl(lucroFinal);
 }
-function tripCardHTML(v,showDelete){
-  const dt=new Date(v.data+'T00:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
-  const ok=v.margem>=config.margemMinima;
-  const badge='<span class="margin-badge '+(ok?'':'warn')+'">'+num(v.margem,0)+'% MARGEM</span>';
-  const obs=v.obs?'<div class="trip-obs">'+v.obs+'</div>':'';
-  const actions=showDelete?'<div class="card-actions">'+
-    '<button class="btn edit" onclick="abrirEdicao('+v.id+')">✏️ EDITAR</button>'+
-    '<button class="btn danger" onclick="deletar('+v.id+')" style="padding:8px;font-size:12px">🗑️ DELETAR</button></div>':'';
-  return'<div class="trip-card fade-in"><div class="trip-card-header"><div>'+
-    '<div class="trip-card-title">'+(v.notas||'Viagem sem descrição')+'</div>'+
-    '<div class="trip-card-date">'+dt+'</div>'+badge+'</div>'+
-    '<div class="trip-card-value '+(v.lucro>=0?'success':'danger')+'">'+brl(v.lucro)+'</div></div>'+
-    '<div class="trip-details">'+
-    '<div><div class="trip-detail-label">Distância</div><div class="trip-detail-value">'+num(v.distancia,0)+' km</div></div>'+
-    '<div><div class="trip-detail-label">Frete</div><div class="trip-detail-value">'+brl(v.frete)+'</div></div>'+
-    '<div><div class="trip-detail-label">Combustível</div><div class="trip-detail-value">'+brl(v.custoComb)+'</div></div>'+
-    '<div><div class="trip-detail-label">Consumo Real</div><div class="trip-detail-value">'+num(v.consumo,2)+' km/l</div></div>'+
-    (v.outros>0?'<div><div class="trip-detail-label">Outros</div><div class="trip-detail-value">'+brl(v.outros)+'</div></div>':'')+
-    '</div>'+obs+actions+'</div>';
+
+// ═══════════════════════════════════════════════════
+// HISTÓRICO
+// ═══════════════════════════════════════════════════
+function renderHistorico() {
+  const busca = (document.getElementById('h-busca').value||'').toLowerCase();
+  const lista = document.getElementById('h-lista');
+  const vazio = document.getElementById('h-vazio');
+
+  // Todas as viagens de todos os caminhões
+  let todas = [];
+  caminhoes.forEach(c => {
+    const vs = (dados[c.id] || {}).viagens || [];
+    vs.forEach(v => todas.push({ ...v, _caminhaoNome: c.nome, _caminhaoPlaca: c.placa || '' }));
+  });
+  todas.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+  if (busca) todas = todas.filter(v =>
+    (v.notas || '').toLowerCase().includes(busca) ||
+    (v._caminhaoNome || '').toLowerCase().includes(busca)
+  );
+
+  if (todas.length === 0) {
+    lista.innerHTML = '';
+    vazio.style.display = 'block';
+    return;
+  }
+  vazio.style.display = 'none';
+  lista.innerHTML = todas.map(v => tripCardHTML(v, true)).join('');
 }
-function deletar(id){
-  if(!confirm('Deletar esta viagem?'))return;
-  viagens=viagens.filter(v=>v.id!==id);salvar();renderHistorico();atualizarDashboard();atualizarMensal();
-  toast('🗑️ Viagem removida','error');
+
+// ═══════════════════════════════════════════════════
+// TRIP CARD HTML
+// ═══════════════════════════════════════════════════
+function tripCardHTML(v, showDelete) {
+  const dt = new Date(v.data + 'T00:00:00')
+    .toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short', year:'numeric' });
+  const margemOk = v.margem >= getCfg().margemMinima;
+  const badge = '<span class="margin-badge ' + (margemOk?'':'warn') + '">' + num(v.margem,0) + '% MARGEM</span>';
+  const obsHtml = v.obs ? '<div class="trip-obs">' + v.obs + '</div>' : '';
+
+  // Badge do caminhão — vem de _caminhaoNome (histórico geral) ou busca pelo caminhaoId
+  let truckLabel = v._caminhaoNome || '';
+  if (!truckLabel && v.caminhaoId) {
+    const c = caminhoes.find(x => String(x.id) === String(v.caminhaoId));
+    if (c) truckLabel = c.nome + (c.placa ? ' · ' + c.placa : '');
+  }
+  const truckBadge = truckLabel
+    ? '<span class="margin-badge" style="background:var(--accent-lt);color:var(--accent);margin-left:4px">🚚 ' + truckLabel + '</span>'
+    : '';
+
+  const actions = showDelete
+    ? '<div class="card-actions">' +
+        '<button class="btn edit" onclick="abrirEdicao(' + v.id + ')">✏️ EDITAR</button>' +
+        '<button class="btn danger" onclick="deletar(' + v.id + ')" style="padding:8px; font-size:12px">🗑️ DELETAR</button>' +
+      '</div>'
+    : '';
+
+  return '<div class="trip-card fade-in">' +
+    '<div class="trip-card-header">' +
+      '<div>' +
+        '<div class="trip-card-title">' + (v.notas || 'Viagem sem descrição') + '</div>' +
+        '<div class="trip-card-date">' + dt + '</div>' +
+        badge + truckBadge +
+      '</div>' +
+      '<div class="trip-card-value ' + (v.lucro>=0?'success':'danger') + '">' + brl(v.lucro) + '</div>' +
+    '</div>' +
+    '<div class="trip-details">' +
+      '<div><div class="trip-detail-label">Distância</div><div class="trip-detail-value">' + num(v.distancia,0) + ' km</div></div>' +
+      '<div><div class="trip-detail-label">Frete</div><div class="trip-detail-value">' + brl(v.frete) + '</div></div>' +
+      '<div><div class="trip-detail-label">Combustível</div><div class="trip-detail-value">' + brl(v.custoComb) + '</div></div>' +
+      '<div><div class="trip-detail-label">Consumo Real</div><div class="trip-detail-value">' + num(v.consumo,2) + ' km/l</div></div>' +
+      (v.outros > 0 ? '<div><div class="trip-detail-label">Outros</div><div class="trip-detail-value">' + brl(v.outros) + '</div></div>' : '') +
+    '</div>' +
+    obsHtml +
+    actions +
+  '</div>';
 }
-function salvarConfig(){
-  config.consumoMedio=parseFloat(document.getElementById('cfg-consumo').value)||3.5;
-  config.precoCombustivel=parseFloat(document.getElementById('cfg-preco').value)||5.50;
-  config.margemMinima=parseFloat(document.getElementById('cfg-margem').value)||15;
-  config.veiculo=document.getElementById('cfg-veiculo').value.trim();
+
+// ═══════════════════════════════════════════════════
+// DELETE
+// ═══════════════════════════════════════════════════
+function deletar(id) {
+  if (!confirm('Deletar esta viagem?')) return;
+  // Buscar em todos os caminhões
+  let found = false;
+  caminhoes.forEach(c => {
+    const vs = (dados[c.id] || {}).viagens || [];
+    const filtered = vs.filter(v => v.id !== id);
+    if (filtered.length !== vs.length) {
+      dados[c.id].viagens = filtered;
+      found = true;
+    }
+  });
+  if (found) {
+    salvar();
+    renderHistorico();
+    atualizarDashboard();
+    atualizarMensal();
+    toast('🗑️ Viagem removida', 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════
+function salvarConfig() {
+  const idx = caminhoes.findIndex(c => String(c.id) === String(caminhaoAtivoId));
+  if (idx < 0) return;
+  caminhoes[idx].consumoMedio     = parseFloat(document.getElementById('cfg-consumo').value) || 3.5;
+  caminhoes[idx].precoCombustivel = parseFloat(document.getElementById('cfg-preco').value)   || 5.50;
+  caminhoes[idx].margemMinima     = parseFloat(document.getElementById('cfg-margem').value)  || 15;
   salvar();
-  document.getElementById('footer-veiculo').textContent=config.veiculo||'SEM VEÍCULO';
-  document.getElementById('v-preco-litro').value=config.precoCombustivel;
-  document.getElementById('c-consumo').value=config.consumoMedio;
-  document.getElementById('c-preco').value=config.precoCombustivel;
+  document.getElementById('v-preco-litro').value = caminhoes[idx].precoCombustivel;
+  document.getElementById('c-consumo').value     = caminhoes[idx].consumoMedio;
+  document.getElementById('c-preco').value       = caminhoes[idx].precoCombustivel;
+  renderTruckBar();
   toast('✅ Configurações salvas!');
 }
-function exportarPDF(){
-  if(viagens.length===0){toast('Nenhuma viagem para exportar','error');return;}
-  const sorted=[...viagens].sort((a,b)=>new Date(a.data)-new Date(b.data));
-  const tF=sorted.reduce((s,v)=>s+v.frete,0),tC=sorted.reduce((s,v)=>s+v.custoComb+v.outros,0),tL=sorted.reduce((s,v)=>s+v.lucro,0);
-  document.getElementById('pdf-n').textContent=sorted.length;
-  document.getElementById('pdf-frete').textContent=brl(tF);
-  document.getElementById('pdf-custo').textContent=brl(tC);
-  document.getElementById('pdf-lucro').textContent=brl(tL);
-  const hoje=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
-  document.getElementById('pdf-subtitle').textContent=(config.veiculo?config.veiculo+' — ':'')+' Gerado em '+hoje;
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('historico').classList.add('active');
-  setTimeout(()=>window.print(),100);toast('📄 Abrindo PDF...');
+
+// ═══════════════════════════════════════════════════
+// EXPORT PDF
+// ═══════════════════════════════════════════════════
+function exportarPDF() {
+  const viagens = getViagens();
+  if (viagens.length === 0) { toast('Nenhuma viagem para exportar', 'error'); return; }
+  const cfg    = getCfg();
+  const c      = getCaminhao();
+  const sorted = [...viagens].sort((a,b) => new Date(a.data)-new Date(b.data));
+  const totalFrete = sorted.reduce((s,v) => s+v.frete,0);
+  const totalCusto = sorted.reduce((s,v) => s+v.custoComb+v.outros,0);
+  const totalLucro = sorted.reduce((s,v) => s+v.lucro,0);
+  const hoje = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  const titulo = (c.nome||'Caminhão') + (c.placa?' — '+c.placa:'');
+  const linhas = sorted.map(v => {
+    const dt  = new Date(v.data+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+    const cor = v.lucro>=0?'#1a7a4a':'#c03a2a';
+    return '<tr><td>'+dt+'</td><td>'+(v.notas||'—')+'</td>' +
+      '<td style="text-align:right">'+Math.round(v.distancia)+' km</td>' +
+      '<td style="text-align:right">R$'+Math.round(v.frete).toLocaleString('pt-BR')+'</td>' +
+      '<td style="text-align:right">R$'+Math.round(v.custoComb).toLocaleString('pt-BR')+'</td>' +
+      '<td style="text-align:right;color:'+cor+';font-weight:700">R$'+Math.round(v.lucro).toLocaleString('pt-BR')+'</td>' +
+      '<td style="text-align:right">'+(v.margem>=cfg.margemMinima?'✓':'⚠')+' '+Math.round(v.margem)+'%</td></tr>';
+  }).join('');
+  const html='<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>ROTA — '+titulo+'</title>'+
+    '<style>body{font-family:Arial,sans-serif;font-size:12px;color:#1a1a1a;padding:24px;max-width:900px;margin:0 auto}'+
+    'h1{font-size:22px;letter-spacing:4px;text-transform:uppercase;margin:0 0 4px}p.sub{font-size:11px;color:#555;margin:0 0 20px}'+
+    '.resumo{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}'+
+    '.rc{background:#f4f4f4;border-radius:8px;padding:12px;text-align:center}'+
+    '.rl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:4px}'+
+    '.rv{font-size:16px;font-weight:700}'+
+    'table{width:100%;border-collapse:collapse}th{background:#1a1a1a;color:#fff;padding:8px;text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase}'+
+    'th:nth-child(n+3){text-align:right}td{padding:7px 8px;border-bottom:1px solid #eee;font-size:11px}tr:nth-child(even) td{background:#f9f9f9}'+
+    '.ft{margin-top:20px;font-size:9px;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:10px}</style></head><body>'+
+    '<h1>🚚 ROTA</h1><p class="sub">'+titulo+' &nbsp;—&nbsp; Gerado em '+hoje+'</p>'+
+    '<div class="resumo">'+
+      '<div class="rc"><div class="rl">Viagens</div><div class="rv">'+sorted.length+'</div></div>'+
+      '<div class="rc"><div class="rl">Frete Total</div><div class="rv">R$'+Math.round(totalFrete).toLocaleString('pt-BR')+'</div></div>'+
+      '<div class="rc"><div class="rl">Custos</div><div class="rv" style="color:#c03a2a">R$'+Math.round(totalCusto).toLocaleString('pt-BR')+'</div></div>'+
+      '<div class="rc"><div class="rl">Lucro</div><div class="rv" style="color:'+(totalLucro>=0?'#1a7a4a':'#c03a2a')+'">R$'+Math.round(totalLucro).toLocaleString('pt-BR')+'</div></div>'+
+    '</div>'+
+    '<table><thead><tr><th>Data</th><th>Rota</th><th>Km</th><th>Frete</th><th>Combustível</th><th>Lucro</th><th>Margem</th></tr></thead>'+
+    '<tbody>'+linhas+'</tbody></table>'+
+    '<div class="ft">ROTA — Controle de Viagens &nbsp;|&nbsp; Dados armazenados localmente no dispositivo</div>'+
+    '</body></html>';
+  try {
+    const blob = new Blob([html],{type:'text/html;charset=utf-8'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href=url; a.download='rota-'+(c.nome||'caminhao').replace(/\s+/g,'-').toLowerCase()+'-'+new Date().toISOString().slice(0,10)+'.html';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
+    toast('📄 Relatório gerado!');
+  } catch(e) {
+    const w=window.open('','_blank'); if(w){w.document.write(html);w.document.close();w.print();}
+    toast('📄 Abrindo relatório...');
+  }
 }
-function limparTudo(){
-  if(!confirm('ATENÇÃO: Todos os dados serão deletados!'))return;
-  if(!confirm('Confirmar exclusão de TODAS as viagens?'))return;
-  localStorage.clear();location.reload();
+
+// ═══════════════════════════════════════════════════
+// CLEAR ALL
+// ═══════════════════════════════════════════════════
+function limparCaminhao() {
+  const c = getCaminhao();
+  if (!confirm('Limpar TODAS as viagens de "' + c.nome + '"?')) return;
+  dados[caminhaoAtivoId] = { viagens:[], metas:{}, custosExtras:{} };
+  salvar(); atualizarDashboard(); atualizarMensal();
+  toast('🗑️ Dados do caminhão limpos', 'error');
 }
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});
+function limparTudo() {
+  if (!confirm('ATENÇÃO: Todos os dados de TODOS os caminhões serão deletados!')) return;
+  localStorage.clear(); location.reload();
 }
-window.addEventListener('load',init);
-window.addEventListener('resize',()=>{if(document.getElementById('dashboard').classList.contains('active'))renderChart();});
+
+// Service worker removido
+
+window.addEventListener('load', init);
+window.addEventListener('resize', () => {
+  if (document.getElementById('dashboard').classList.contains('active')) renderChart();
+});
 </script>
 </body>
 </html>
